@@ -17,16 +17,20 @@ class UserSeeder extends Seeder
         $users = [
             [
                 'name' => 'admin',
+                'username' => 'admin',
                 'email' => 'admin@mail.com',
                 'password' => Hash::make(config('app.default_user_password')),
                 'email_verified_at' => now(),
+                'role' => 'admin',
                 'is_active' => true,
             ],
             [
                 'name' => 'admin1',
+                'username' => 'admin1',
                 'email' => 'admin1@mail.com',
                 'password' => Hash::make(config('app.default_user_password')),
                 'email_verified_at' => now(),
+                'role' => 'admin',
                 'is_active' => false,
             ],
         ];
