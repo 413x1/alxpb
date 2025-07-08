@@ -20,4 +20,10 @@ class General
     {
         return 'dev_' . md5(uniqid(rand(), true));
     }
+
+    public static function decimalToRupiah($amount, $withDecimals = false): string
+    {
+        $decimals = $withDecimals ? 2 : 0;
+        return 'Rp ' . number_format($amount, $decimals, ',', '.').',00';
+    }
 }

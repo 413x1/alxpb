@@ -19,7 +19,7 @@ class CheckAuth
     {
         // cek sudah login atau belum . jika belum kembali ke halaman login
         if(!Auth::check()){
-            return redirect('login.index');
+            return redirect()->route('login.index');
         }
         //        //    simpan data user pada variabel $user
         //        $user = Auth::user();

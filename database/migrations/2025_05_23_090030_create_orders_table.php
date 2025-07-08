@@ -22,6 +22,9 @@ return new class extends Migration
             $table->decimal('total_price', 8, 2);
             $table->json('gateway_response')->nullable();
 
+            $table->boolean('is_voucher')->default(false);
+            $table->unsignedBigInteger('voucher_id')->nullable();
+
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
@@ -29,6 +32,7 @@ return new class extends Migration
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->foreign('device_id')->references('id')->on('devices')->onDelete('cascade');
+            $table->foreign('voucher_id')->references('id')->on('vouchers')->onDelete('cascade');
         });
     }
 
@@ -41,6 +45,7 @@ return new class extends Migration
             $table->dropForeign(['customer_id']);
             $table->dropForeign(['product_id']);
             $table->dropForeign(['device_id']);
+            $table->dropForeign(['voucher_id']);
         });
         Schema::dropIfExists('orders');
     }

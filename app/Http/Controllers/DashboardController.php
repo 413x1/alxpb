@@ -8,6 +8,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        dd([]);
+        return view('pages.admin.index.index');
     }
 }

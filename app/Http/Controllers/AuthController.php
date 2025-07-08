@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
@@ -30,5 +31,13 @@ class AuthController extends Controller
         }
 
         return redirect("login.index")->withError('Oppes! Login failed');
+    }
+
+    public function logout(Request $request)
+    {
+        Session::flush();
+        Auth::logout();
+
+        return redirect()->route('login.index');
     }
 }
