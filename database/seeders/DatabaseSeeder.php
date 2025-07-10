@@ -17,5 +17,6 @@ class DatabaseSeeder extends Seeder
         $this->call(DeviceSeeder::class);
         $this->call(ProductSeeder::class);
         $this->call(ProductBannerSeeder::class);
+        $this->call(VoucherSeeder::class);
     }
 }
