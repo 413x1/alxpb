@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Voucher;
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
-use Yajra\DataTables\Services\DataTable;
 
 class DashboardVoucherController extends Controller
 {
+    private string $base_view_path;
+
     public function __construct()
     {
         $this->base_view_path = 'pages.admin.voucher.';
@@ -16,32 +16,62 @@ class DashboardVoucherController extends Controller
 
     public function index()
     {
-
-        return view($this->base_view_path .'index');
+        return view($this->base_view_path.'index');
     }
 
-    public function getVoucherData(Request $request)
+    public function create()
     {
-        $size = $request->input('length', 10); // Number of records per page
-        $start = $request->input('start', 0); // Offset
-        $search = $request->input('search.value'); // Search keyword
+        return view($this->base_view_path.'create');
+    }
 
-        $query = Voucher::select('vouchers.*', 'users.name as created_by_name')
-            ->join('users', 'vouchers.created_by', '=', 'users.id');
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'code' => 'required|string|max:50|unique:vouchers,code',
+            'description' => 'required|string|max:1000',
+        ]);
 
-        // Filtering
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('vouchers.code', 'like', "%{$search}%")
-                    ->orWhere('users.name', 'like', "%{$search}%");
-            });
+        $validated['created_by'] = auth()->id();
+        $validated['is_wildcard'] = false;
+
+        Voucher::create($validated);
+
+        return redirect()->route('dashboard.vouchers.index')
+            ->with('success', 'Voucher created successfully.');
+    }
+
+    public function edit(Voucher $voucher)
+    {
+        return view($this->base_view_path.'edit', compact('voucher'));
+    }
+
+    public function update(Request $request, Voucher $voucher)
+    {
+        $validated = $request->validate([
+            'code' => 'required|string|max:50|unique:vouchers,code,'.$voucher->id,
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $voucher->update($validated);
+
+        return redirect()->route('dashboard.vouchers.index')
+            ->with('success', 'Voucher updated successfully.');
+    }
+
+    public function destroy(Voucher $voucher)
+    {
+        try {
+            $voucher->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Voucher deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete voucher: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Use DataTables for paging, sorting, etc.
-        return DataTables::of($query)
-            ->addColumn('action', function ($row) {
-                return '<a href="javascript:void(0);" class="btn-edit-voucher" data-id="'. $row->id .'"><i class="icon-pencil-alt"></i></a>';
-            })
-            ->make(true);
     }
 }

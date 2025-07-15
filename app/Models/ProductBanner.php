@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
-class ProductBanner extends Model
+class ProductBanner extends BaseModel
 {
     use HasFactory;
 
@@ -16,4 +18,14 @@ class ProductBanner extends Model
         'url',
         'is_active',
     ];
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->url ? Storage::url($this->url) : null;
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

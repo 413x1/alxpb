@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Banner extends BaseModel
 {
@@ -11,9 +11,13 @@ class Banner extends BaseModel
 
     protected $fillable = [
         'name',
-        'description',
         'url',
         'type',
         'is_active',
     ];
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->url ? Storage::url($this->url) : null;
+    }
 }

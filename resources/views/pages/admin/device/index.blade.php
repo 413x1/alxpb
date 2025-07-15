@@ -9,7 +9,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="card-header card-no-border pb-0">
-                            <button class="btn btn-info text-light" type="button" data-bs-toggle="tooltip" data-bs-original-title="btn btn-info btn-add-device">Add New Device</button>
+                            <a href="{{ route('dashboard.devices.create') }}" class="btn btn-info text-light" data-bs-toggle="tooltip" data-bs-original-title="btn btn-info btn-add-device">Add New Device</a>
                             <div class="table-responsive signal-table">
                                 <table class="table table-hover">
                                     <thead>
@@ -25,15 +25,15 @@
                                     <tbody>
                                     @foreach($devices as $device)
                                         <tr>
-                                            <th scope="row">{{ $loop->iteration }}</th>
+                                            <th scope="row">{{ $devices->firstItem() + $loop->index }}</th>
                                             <td>{{ $device->name }}</td>
                                             <td>{{ $device->identifier }}</td>
                                             <td>{{ $device->code }}</td>
                                             <td>{{ $device->is_active ? 'Active' : 'Non active' }}</td>
                                             <td>
-                                                <button class="btn btn-secondary" type="button" data-bs-toggle="tooltip" data-bs-original-title="btn btn-secondary">
+                                                <a href="{{ route('dashboard.devices.edit', $device->getKey()) }}" class="btn btn-secondary" type="button" data-bs-toggle="tooltip" data-bs-original-title="btn btn-secondary">
                                                     <i class="fa-solid fa-pen"></i>
-                                                </button>
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -41,6 +41,8 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            {{ $devices->links() }}
                         </div>
                     </div>
                 </div>

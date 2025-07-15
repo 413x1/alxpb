@@ -10,8 +10,9 @@
         <div class="row starter-main">
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header card-no-border pb-0">
+                    <div class="card-header card-no-border pb-0 d-flex justify-content-between">
                         <h3>{{ $product->name }}</h3>
+                        <a href="{{ route('dashboard.products.edit') }}" class="btn btn-primary">Edit</a>
                     </div>
                     <div class="card-body">
                         <h4>Description :</h4>
