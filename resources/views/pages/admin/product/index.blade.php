@@ -27,12 +27,12 @@
                             <h4>Banners :</h4>
                             <div class="product-slider owl-carousel owl-theme mb-2" id="sync1">
                                 @foreach($product->banners as $banner)
-                                    <div class="item"><img src="{{ $banner->url }}" alt=""/></div>
+                                    <div class="item"><img src="{{ $banner->image_url }}" alt=""/></div>
                                 @endforeach
                             </div>
                             <div class="owl-carousel owl-theme" id="sync2">
                                 @foreach($product->banners as $banner)
-                                    <div class="item"><img src="{{ $banner->url }}" alt=""/></div>
+                                    <div class="item"><img src="{{ $banner->image_url }}" alt=""/></div>
                                 @endforeach
                             </div>
                         </div>

@@ -35,8 +35,8 @@ class DashboardProductBannerController extends Controller
         ]);
 
         $data = [
-            'title' => $validated['title'],
-            'description' => $validated['description'],
+            'title' => $validated['title'] ?? null,
+            'description' => $validated['description'] ?? null,
             'is_active' => $request->has('is_active'),
         ];
 
