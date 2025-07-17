@@ -36,7 +36,6 @@ Route::group(['middleware' => ['check.device']], function () {
 
     Route::get('/', [HomepageController::class, 'index'])->name('home');
     Route::resource('order', OrderController::class)->only(['index', 'store']);
-    Route::post('check-voucher', [OrderController::class, 'checkVoucher'])->name('order.check-voucher');
     Route::put('update-order-status', [OrderController::class, 'updateOrderStatus'])->name('order.update-status');
 });
 
@@ -70,3 +69,7 @@ Route::group(['middleware' => ['check.auth']], function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('login.logout');
 });
+
+Route::get('lets-photo', function (){
+    return view('pages.lets-photo');
+})->name('lets-photo');

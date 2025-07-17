@@ -28,7 +28,8 @@ class OrderController extends Controller
             'product_id' => 'required|exists:products,id',
             'qty' => 'required|integer|min:1',
             'customer_name' => 'required|string|max:255',
-            'voucher_code' => 'nullable|string|max:255',
+            'payment_method' => 'required|in:qris,voucher',
+            'voucher_code' => 'nullable|required_if:payment_method,voucher|string|max:255',
         ]);
 
         $customer = Customer::create([
@@ -42,7 +43,6 @@ class OrderController extends Controller
             'customer_id' => $customer->getKey(),
             'product_id' => $validated['product_id'],
             'device_id' => session('active_device_id'),
-            'status' => 'pending',
             'qty' => $validated['qty'],
             'total_price' => $product->price * $validated['qty'],
             'gateway_response' => null,
@@ -51,57 +51,89 @@ class OrderController extends Controller
             'is_active' => true,
         ];
 
-        // Check voucher if provided
-        if (!empty($validated['voucher_code'])) {
-            $voucherCheck = $this->validateVoucher($validated['voucher_code'], $validated['qty'], $product->price);
+        // Handle payment methods
+        if ($validated['payment_method'] === 'voucher') {
+            // Voucher code is mandatory for voucher payment
+            if (empty($validated['voucher_code'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Voucher code is required for voucher payment method',
+                ], 400);
+            }
 
-            if ($voucherCheck['success']) {
-                // Apply voucher
-                $data['is_voucher'] = true;
-                $data['voucher_id'] = $voucherCheck['voucher']->id;
-                $data['total_price'] = $voucherCheck['final_price'];
+            // Validate voucher
+            $voucherCheck = $this->validateVoucher($validated['voucher_code']);
 
-                // Mark voucher as used
-                $voucherCheck['voucher']->update([
-                    'is_used' => true,
-                    'used_at' => now()
-                ]);
-            } else {
+            if (!$voucherCheck['success']) {
                 return response()->json([
                     'success' => false,
                     'message' => $voucherCheck['message'],
                 ], 400);
             }
+
+            // Apply voucher - bypass payment
+            $data['is_voucher'] = true;
+            $data['voucher_id'] = $voucherCheck['voucher']->id;
+            $data['status'] = 'paid'; // Direct paid status for voucher
+            $data['gateway_response'] = json_encode([
+                'payment_type' => 'voucher',
+                'voucher_code' => $validated['voucher_code'],
+                'transaction_time' => now()->toISOString(),
+            ]);
+
+            // Mark voucher as used
+            $voucherCheck['voucher']->update([
+                'is_used' => true,
+                'used_at' => now()
+            ]);
+
+            $order = Order::create($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order created successfully with voucher payment',
+                'order' => $order,
+                'payment_method' => 'voucher'
+            ]);
+
+        } else if ($validated['payment_method'] === 'qris') {
+            // QRIS Payment - need Midtrans
+            $data['status'] = 'pending';
+            $order = Order::create($data);
+
+            // Configure Midtrans
+            Config::$serverKey = config('midtrans.server_key');
+            Config::$isProduction = config('midtrans.is_production');
+            Config::$isSanitized = config('midtrans.is_sanitized');
+            Config::$is3ds = config('midtrans.is_3ds');
+
+            // Create Midtrans transaction
+            $params = array(
+                'transaction_details' => array(
+                    'order_id' => $order->code,
+                    'gross_amount' => $order->total_price,
+                )
+            );
+
+            $snap_token = Snap::getSnapToken($params);
+
+            $order->snap_token = $snap_token;
+            $order->save();
+
+            $order->refresh();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order created successfully',
+                'order' => $order,
+                'payment_method' => 'qris'
+            ]);
         }
 
-        $order = Order::create($data);
-
-        // Configure Midtrans
-        Config::$serverKey = config('midtrans.server_key');
-        Config::$isProduction = config('midtrans.is_production');
-        Config::$isSanitized = config('midtrans.is_sanitized');
-        Config::$is3ds = config('midtrans.is_3ds');
-
-        // Create Midtrans transaction
-        $params = array(
-            'transaction_details' => array(
-                'order_id' => $order->code,
-                'gross_amount' => $order->total_price,
-            )
-        );
-
-        $snap_token = Snap::getSnapToken($params);
-
-        $order->snap_token = $snap_token;
-        $order->save();
-
-        $order->refresh();
-
         return response()->json([
-            'success' => true,
-            'message' => 'Order created successfully',
-            'order' => $order,
-        ]);
+            'success' => false,
+            'message' => 'Invalid payment method',
+        ], 400);
     }
 
     public function updateOrderStatus(Request $request)
@@ -128,14 +160,14 @@ class OrderController extends Controller
         ]);
     }
 
-    private function validateVoucher($voucherCode, $qty, $price)
+    private function validateVoucher($voucherCode)
     {
         $voucher = Voucher::whereCode($voucherCode)->first();
 
         if (!$voucher) {
             return [
                 'success' => false,
-                'message' => 'Voucher not found',
+                'message' => 'Voucher code not found',
             ];
         }
 
@@ -146,45 +178,12 @@ class OrderController extends Controller
             ];
         }
 
-        $totalPrice = $price * $qty;
-        $discount = $totalPrice * (50 / 100);
-        $finalPrice = $totalPrice - $discount;
-
         return [
             'success' => true,
             'voucher' => $voucher,
-            'price' => $totalPrice,
-            'discount' => $discount,
-            'final_price' => $finalPrice,
             'message' => 'Voucher is valid',
         ];
     }
 
-    public function checkVoucher(Request $request)
-    {
-        $validated = $request->validate([
-            'voucher_code' => 'required|string|max:255',
-            'qty' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0',
-        ]);
-
-        $result = $this->validateVoucher($validated['voucher_code'], $validated['qty'], $validated['price']);
-
-        if ($result['success']) {
-            return response()->json([
-                'data' => [
-                    'price' => $result['price'],
-                    'discount' => $result['discount'],
-                    'final_price' => $result['final_price'],
-                ],
-                'success' => true,
-                'message' => $result['message'],
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => $result['message'],
-            ], $result['message'] === 'Voucher not found' ? 404 : 400);
-        }
-    }
+    // Remove the checkVoucher method as it's no longer needed
 }

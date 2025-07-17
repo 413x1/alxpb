@@ -31,7 +31,7 @@ it('passes active product with banners to view', function () {
         ->and($viewProduct->is_active)->toBeTrue();
 });
 
-it('can create order successfully without voucher', function () {
+it('can create QRIS order successfully', function () {
     $product = Product::factory()->create(['price' => 100]);
 
     session(['active_device_id' => 1]);
@@ -40,12 +40,14 @@ it('can create order successfully without voucher', function () {
         'product_id' => $product->id,
         'qty' => 2,
         'customer_name' => 'John Doe',
+        'payment_method' => 'qris',
     ]);
 
     $response->assertStatus(200);
     $response->assertJson([
         'success' => true,
         'message' => 'Order created successfully',
+        'payment_method' => 'qris'
     ]);
 
     $this->assertDatabaseHas('orders', [
@@ -61,9 +63,13 @@ it('can create order successfully without voucher', function () {
     $this->assertDatabaseHas('customers', [
         'name' => 'John Doe',
     ]);
+
+    // Check that snap_token is generated
+    $order = Order::latest()->first();
+    expect($order->snap_token)->not()->toBeNull();
 });
 
-it('can create order successfully with valid voucher', function () {
+it('can create voucher order successfully with valid voucher', function () {
     $product = Product::factory()->create(['price' => 100]);
     $voucher = Voucher::factory()->create([
         'code' => 'SAVE50',
@@ -77,21 +83,23 @@ it('can create order successfully with valid voucher', function () {
         'product_id' => $product->id,
         'qty' => 2,
         'customer_name' => 'John Doe',
+        'payment_method' => 'voucher',
         'voucher_code' => 'SAVE50',
     ]);
 
     $response->assertStatus(200);
     $response->assertJson([
         'success' => true,
-        'message' => 'Order created successfully',
+        'message' => 'Order created successfully with voucher payment',
+        'payment_method' => 'voucher'
     ]);
 
-    // Check order with voucher applied (50% discount)
+    // Check order with voucher applied (no discount calculation in controller, just original price)
     $this->assertDatabaseHas('orders', [
         'product_id' => $product->id,
         'qty' => 2,
-        'total_price' => 100, // 200 - 50% = 100
-        'status' => 'pending',
+        'total_price' => 200, // Original price without discount
+        'status' => 'paid', // Paid status for voucher
         'is_active' => true,
         'is_voucher' => true,
         'voucher_id' => $voucher->id,
@@ -106,6 +114,12 @@ it('can create order successfully with valid voucher', function () {
 
     $voucher->refresh();
     expect($voucher->used_at)->not()->toBeNull();
+
+    // Check gateway_response is set
+    $order = Order::latest()->first();
+    $gatewayResponse = json_decode($order->gateway_response, true);
+    expect($gatewayResponse['payment_type'])->toBe('voucher')
+        ->and($gatewayResponse['voucher_code'])->toBe('SAVE50');
 });
 
 it('fails to create order with invalid voucher', function () {
@@ -117,13 +131,14 @@ it('fails to create order with invalid voucher', function () {
         'product_id' => $product->id,
         'qty' => 1,
         'customer_name' => 'John Doe',
+        'payment_method' => 'voucher',
         'voucher_code' => 'INVALID123',
     ]);
 
     $response->assertStatus(400);
     $response->assertJson([
         'success' => false,
-        'message' => 'Voucher not found',
+        'message' => 'Voucher code not found',
     ]);
 
     // No order should be created
@@ -146,6 +161,7 @@ it('fails to create order with already used voucher', function () {
         'product_id' => $product->id,
         'qty' => 1,
         'customer_name' => 'John Doe',
+        'payment_method' => 'voucher',
         'voucher_code' => 'USED123',
     ]);
 
@@ -161,38 +177,76 @@ it('fails to create order with already used voucher', function () {
     ]);
 });
 
-it('validates required fields when creating order', function () {
-    $response = $this->post('/order', []);
+it('fails to create voucher order without voucher code', function () {
+    $product = Product::factory()->create(['price' => 100]);
 
-    $response->assertStatus(302);
-    $response->assertSessionHasErrors(['product_id', 'qty', 'customer_name']);
+    session(['active_device_id' => 1]);
+
+    $response = $this->postJson('/order', [
+        'product_id' => $product->id,
+        'qty' => 1,
+        'customer_name' => 'John Doe',
+        'payment_method' => 'voucher',
+        // Missing voucher_code - this should trigger validation error
+    ]);
+
+    $response->assertStatus(422); // Validation error
+    $response->assertJsonValidationErrors(['voucher_code']);
+
+    // Verify the specific error message
+    $response->assertJsonFragment([
+        'voucher_code' => ['The voucher code field is required when payment method is voucher.']
+    ]);
+});
+
+it('validates required fields when creating order', function () {
+    $response = $this->postJson('/order', []);
+
+    $response->assertStatus(422); // Changed from 302 to 422 for JSON validation
+    $response->assertJsonValidationErrors(['product_id', 'qty', 'customer_name', 'payment_method']);
+});
+
+it('validates payment method', function () {
+    $product = Product::factory()->create();
+
+    $response = $this->postJson('/order', [
+        'product_id' => $product->id,
+        'qty' => 1,
+        'customer_name' => 'John Doe',
+        'payment_method' => 'invalid_method',
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['payment_method']);
 });
 
 it('validates product exists when creating order', function () {
-    $response = $this->post('/order', [
+    $response = $this->postJson('/order', [
         'product_id' => 999,
         'qty' => 1,
         'customer_name' => 'John Doe',
+        'payment_method' => 'qris',
     ]);
 
-    $response->assertStatus(302);
-    $response->assertSessionHasErrors(['product_id']);
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['product_id']);
 });
 
 it('validates minimum quantity when creating order', function () {
     $product = Product::factory()->create();
 
-    $response = $this->post('/order', [
+    $response = $this->postJson('/order', [
         'product_id' => $product->id,
         'qty' => 0,
         'customer_name' => 'John Doe',
+        'payment_method' => 'qris',
     ]);
 
-    $response->assertStatus(302);
-    $response->assertSessionHasErrors(['qty']);
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['qty']);
 });
 
-it('calculates total price correctly without voucher', function () {
+it('calculates total price correctly for QRIS payment', function () {
     $product = Product::factory()->create(['price' => 50]);
 
     session(['active_device_id' => 1]);
@@ -201,16 +255,18 @@ it('calculates total price correctly without voucher', function () {
         'product_id' => $product->id,
         'qty' => 3,
         'customer_name' => 'John Doe',
+        'payment_method' => 'qris',
     ]);
 
     $order = Order::latest()->first();
 
     expect($order->total_price)->toBe(150)
         ->and($order->qty)->toBe(3)
-        ->and($order->is_voucher)->toBe(0);
+        ->and($order->is_voucher)->toBe(0)
+        ->and($order->status)->toBe('pending');
 });
 
-it('calculates total price correctly with voucher', function () {
+it('calculates total price correctly for voucher payment', function () {
     $product = Product::factory()->create(['price' => 60]);
     $voucher = Voucher::factory()->create([
         'code' => 'DISCOUNT50',
@@ -223,94 +279,56 @@ it('calculates total price correctly with voucher', function () {
         'product_id' => $product->id,
         'qty' => 4,
         'customer_name' => 'Jane Doe',
+        'payment_method' => 'voucher',
         'voucher_code' => 'DISCOUNT50',
     ]);
 
     $order = Order::latest()->first();
 
-    // 4 * 60 = 240, with 50% discount = 120
-    expect($order->total_price)->toBe(120)
-        ->and($order->qty)->toBe(4)
+    // Total price is calculated without discount in your controller
+    expect($order->total_price)->toBe(240) // 4 * 60 = 240 (no discount applied)
+    ->and($order->qty)->toBe(4)
         ->and($order->is_voucher)->toBe(1)
-        ->and($order->voucher_id)->toBe($voucher->id);
+        ->and($order->voucher_id)->toBe($voucher->id)
+        ->and($order->status)->toBe('paid');
 });
 
-// Voucher Check API Tests
-it('can check valid voucher via API', function () {
-    $voucher = Voucher::factory()->create([
-        'code' => 'TEST50',
-        'is_used' => false,
-        'used_at' => null,
+it('can update order status after payment', function () {
+    $order = Order::factory()->create([
+        'code' => 'ORD-TEST123',
+        'status' => 'pending',
+        'total_price' => 100,
     ]);
 
-    $response = $this->post('/check-voucher', [
-        'voucher_code' => 'TEST50',
-        'qty' => 2,
-        'price' => 100,
-    ]);
+    $paymentData = [
+        'order_id' => 'ORD-TEST123',
+        'gross_amount' => 100,
+        'payment_gateway_response' => json_encode([
+            'transaction_id' => 'TXN123',
+            'payment_type' => 'qris',
+            'transaction_status' => 'settlement'
+        ]),
+    ];
+
+    $response = $this->put('/update-order-status', $paymentData);
 
     $response->assertStatus(200);
     $response->assertJson([
         'success' => true,
-        'message' => 'Voucher is valid',
-        'data' => [
-            'price' => 200,      // 100 * 2
-            'discount' => 100,   // 200 * 50%
-            'final_price' => 100, // 200 - 100
-        ],
+        'message' => 'Order status updated successfully',
+    ]);
+
+    $this->assertDatabaseHas('orders', [
+        'code' => 'ORD-TEST123',
+        'status' => 'paid',
     ]);
 });
 
-it('returns error for invalid voucher via API', function () {
-    $response = $this->post('/check-voucher', [
-        'voucher_code' => 'NOTFOUND',
-        'qty' => 1,
-        'price' => 100,
-    ]);
+it('validates update order status request', function () {
+    $response = $this->putJson('/update-order-status', []);
 
-    $response->assertStatus(404);
-    $response->assertJson([
-        'success' => false,
-        'message' => 'Voucher not found',
-    ]);
-});
-
-it('returns error for used voucher via API', function () {
-    $voucher = Voucher::factory()->create([
-        'code' => 'ALREADYUSED',
-        'is_used' => true,
-        'used_at' => now(),
-    ]);
-
-    $response = $this->post('/check-voucher', [
-        'voucher_code' => 'ALREADYUSED',
-        'qty' => 1,
-        'price' => 100,
-    ]);
-
-    $response->assertStatus(400);
-    $response->assertJson([
-        'success' => false,
-        'message' => 'Voucher has already been used',
-    ]);
-});
-
-it('validates required fields for voucher check', function () {
-    $response = $this->post('/check-voucher', []);
-
-    $response->assertStatus(302);
-    $response->assertSessionHasErrors(['voucher_code', 'qty', 'price']);
-});
-
-it('validates minimum values for voucher check', function () {
-    $response = $this->post('/check-voucher', [
-        'voucher_code' => 'TEST',
-        'qty' => 0,
-        'price' => -10,
-    ]);
-
-    $response->assertStatus(302);
-    $response->assertSessionHasErrors(['qty', 'price']);
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['order_id', 'gross_amount', 'payment_gateway_response']);
 });
 
 // Edge Cases
@@ -328,6 +346,7 @@ it('handles concurrent voucher usage', function () {
         'product_id' => $product->id,
         'qty' => 1,
         'customer_name' => 'Customer 1',
+        'payment_method' => 'voucher',
         'voucher_code' => 'CONCURRENT',
     ]);
 
@@ -338,6 +357,7 @@ it('handles concurrent voucher usage', function () {
         'product_id' => $product->id,
         'qty' => 1,
         'customer_name' => 'Customer 2',
+        'payment_method' => 'voucher',
         'voucher_code' => 'CONCURRENT',
     ]);
 
@@ -352,35 +372,6 @@ it('handles concurrent voucher usage', function () {
     expect($orders)->toHaveCount(1);
 });
 
-it('calculates discount correctly for different quantities', function () {
-    $voucher = Voucher::factory()->create([
-        'code' => 'MULTI50',
-        'is_used' => false,
-    ]);
-
-    $testCases = [
-        ['qty' => 1, 'price' => 100, 'expected_final' => 50],
-        ['qty' => 2, 'price' => 100, 'expected_final' => 100],
-        ['qty' => 3, 'price' => 50, 'expected_final' => 75],
-        ['qty' => 5, 'price' => 80, 'expected_final' => 200],
-    ];
-
-    foreach ($testCases as $case) {
-        $response = $this->post('/check-voucher', [
-            'voucher_code' => 'MULTI50',
-            'qty' => $case['qty'],
-            'price' => $case['price'],
-        ]);
-
-        $response->assertStatus(200);
-        $data = $response->json('data');
-
-        expect($data['final_price'])->toBe($case['expected_final'])
-            ->and($data['price'])->toBe($case['qty'] * $case['price'])
-            ->and($data['discount'])->toBe((int)($case['qty'] * $case['price']) * 50 / 100);
-    }
-});
-
 it('creates customer record when placing order', function () {
     $product = Product::factory()->create(['price' => 100]);
 
@@ -392,6 +383,7 @@ it('creates customer record when placing order', function () {
         'product_id' => $product->id,
         'qty' => 1,
         'customer_name' => $customerName,
+        'payment_method' => 'qris',
     ]);
 
     $response->assertStatus(200);
@@ -418,6 +410,7 @@ it('generates unique order codes', function () {
             'product_id' => $product->id,
             'qty' => 1,
             'customer_name' => "Customer {$i}",
+            'payment_method' => 'qris',
         ]);
     }
 
@@ -433,3 +426,33 @@ it('generates unique order codes', function () {
         expect($code)->toStartWith('ORD-');
     }
 });
+
+it('returns error for invalid payment method', function () {
+    $product = Product::factory()->create(['price' => 100]);
+
+    session(['active_device_id' => 1]);
+
+    // This should be caught by validation, but testing the controller logic
+    $response = $this->postJson('/order', [
+        'product_id' => $product->id,
+        'qty' => 1,
+        'customer_name' => 'John Doe',
+        'payment_method' => 'cash', // Invalid method
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['payment_method']);
+
+    // Verify the specific error message
+    $response->assertJsonFragment([
+        'payment_method' => ['The selected payment method is invalid.']
+    ]);
+});
+// Remove the voucher check API tests since they're not in your controller
+// The following tests are removed as your controller doesn't have these endpoints:
+// - 'can check valid voucher via API'
+// - 'returns error for invalid voucher via API'
+// - 'returns error for used voucher via API'
+// - 'validates required fields for voucher check'
+// - 'validates minimum values for voucher check'
+// - 'calculates discount correctly for different quantities'
