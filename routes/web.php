@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardBannerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardDeviceController;
+use App\Http\Controllers\DashboardOrderController;
 use App\Http\Controllers\DashboardProductBannerController;
 use App\Http\Controllers\DashboardProductController;
 use App\Http\Controllers\DashboardUserController;
@@ -34,7 +35,9 @@ Route::group(['middleware' => ['check.device']], function () {
     Route::post('/device/auth', [DeviceAuthenticateController::class, 'authtenticate'])->name('device.auth');
 
     Route::get('/', [HomepageController::class, 'index'])->name('home');
-    Route::get('/order', [OrderController::class, 'index'])->name('order');
+    Route::resource('order', OrderController::class)->only(['index', 'store']);
+    Route::post('check-voucher', [OrderController::class, 'checkVoucher'])->name('order.check-voucher');
+    Route::put('update-order-status', [OrderController::class, 'updateOrderStatus'])->name('order.update-status');
 });
 
 Route::get('login', [AuthController::class, 'index'])->name('login.index');
@@ -50,10 +53,12 @@ Route::group(['middleware' => ['check.auth']], function () {
             'users' => DashboardUserController::class,
             'vouchers' => DashboardVoucherController::class,
             'product.banners' => DashboardProductBannerController::class,
+            'orders' => DashboardOrderController::class,
         ]);
 
-        Route::group(['prefix' => 'datatable', 'as' => 'datatable.'], function (){
+        Route::group(['prefix' => 'datatable', 'as' => 'datatable.'], function () {
             Route::get('vouchers', VoucherController::class)->name('vouchers');
+            Route::get('orders', \App\Http\Controllers\Datatable\OrderController::class)->name('orders');
         });
 
         Route::group(['prefix' => 'products', 'as' => 'products.'], function () {

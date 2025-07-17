@@ -18,4 +18,13 @@ class DeviceFactory extends Factory
             'is_active' => fake()->boolean(),
         ];
     }
+
+    public function active(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_active' => true,
+            ];
+        });
+    }
 }

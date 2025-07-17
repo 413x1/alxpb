@@ -11,6 +11,7 @@
 |
 */
 
+use App\Models\Device;
 use App\Models\User;
 
 use function Pest\Laravel\actingAs;
@@ -50,4 +51,15 @@ function login(): void
 {
     $user = User::factory()->create();
     actingAs($user);
+}
+
+function loginDevice(): void
+{
+    $device = Device::factory()->active()->create();
+
+    session([
+        'active_device' => $device->identifier,
+        'active_device_id' => $device->id,
+        'active_device_name' => $device->name,
+    ]);
 }

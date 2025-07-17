@@ -14,7 +14,7 @@ class VoucherController extends Controller
         $vouchers = Voucher::latest()->with('createdBy')
             ->select([
                 'vouchers.*',
-                'users.name as created_by_name'
+                'users.name as created_by_name',
             ])
             ->leftJoin('users', 'vouchers.created_by', '=', 'users.id');
 
@@ -29,22 +29,16 @@ class VoucherController extends Controller
                 $actions = '';
 
                 // Edit button
-                $actions .= '<button type="button" class="btn btn-sm btn-warning me-1" onclick="editVoucher(' . $voucher->id . ')" title="Edit">
+                $actions .= '<button type="button" class="btn btn-sm btn-warning me-1" onclick="editVoucher('.$voucher->id.')" title="Edit">
                                 <i class="icon-pencil-alt"></i>
                             </button>';
 
                 // Delete button
-                $actions .= '<button type="button" class="btn btn-sm btn-danger" onclick="deleteVoucher(' . $voucher->id . ')" title="Delete">
+                $actions .= '<button type="button" class="btn btn-sm btn-danger" onclick="deleteVoucher('.$voucher->id.')" title="Delete">
                                 <i class="icon-trash"></i>
                             </button>';
 
                 return $actions;
-            })
-            ->filterColumn('created_by_name', function ($query, $keyword) {
-                $query->where('users.name', 'like', "%{$keyword}%");
-            })
-            ->orderColumn('created_by_name', function ($query, $order) {
-                $query->orderBy('users.name', $order);
             })
             ->rawColumns(['action'])
             ->make(true);

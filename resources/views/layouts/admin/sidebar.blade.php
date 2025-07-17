@@ -33,6 +33,13 @@
                 </a>
             </li>
 
+            <li class="sidebar-list {{ isActiveRoute('dashboard.orders.*') }}">
+                <a class="sidebar-link" href="{{ route('dashboard.orders.index') }}">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <h6 class="f-w-600">Orders</h6>
+                </a>
+            </li>
+
             <li class="sidebar-list {{ isActiveRoute('dashboard.users.*') }}">
                 <a class="sidebar-link" href="{{ route('dashboard.users.index') }}">
                     <i class="fa-solid fa-users"></i>
