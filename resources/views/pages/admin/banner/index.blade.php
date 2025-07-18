@@ -9,7 +9,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="card-header card-no-border pb-0">
-                            <button class="btn btn-info text-light" type="button" data-bs-toggle="tooltip" data-bs-original-title="btn btn-info btn-add-device">Add New Banner</button>
+                            <a href="{{ route('dashboard.banners.create') }}" class="btn btn-info text-light"  data-bs-toggle="tooltip" data-bs-original-title="btn btn-info btn-add-device">Add New Banner</a>
                             <div class="table-responsive signal-table">
                                 <table class="table table-hover">
                                     <thead>
@@ -26,18 +26,18 @@
                                     <tbody>
                                     @foreach($banners as $banner)
                                         <tr>
-                                            <th scope="row">{{ $loop->iteration }}</th>
+                                            <th scope="row">{{ $banners->firstItem() + $loop->index }}</th>
                                             <td>
-                                                <img class="img-30 me-2" src="{{ $banner->url }}" alt="">
+                                                <img class="img-30 me-2" src="{{ $banner->image_url }}" alt="">
                                             </td>
                                             <td>{{ $banner->name }}</td>
                                             <td>{{ $banner->type }}</td>
                                             <td>{{ $banner->url }}</td>
                                             <td>{{ $banner->is_active ? 'Active' : 'Non active' }}</td>
                                             <td>
-                                                <button class="btn btn-secondary" type="button" data-bs-toggle="tooltip" data-bs-original-title="btn btn-secondary">
+                                                <a href="{{ route('dashboard.banners.edit', $banner->getKey()) }}" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-original-title="btn btn-secondary">
                                                     <i class="fa-solid fa-pen"></i>
-                                                </button>
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -45,6 +45,8 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            {{ $banners->links() }}
                         </div>
                     </div>
                 </div>

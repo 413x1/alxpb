@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Device extends Model
+class Device extends BaseModel
 {
     use HasFactory;
 
@@ -13,6 +12,6 @@ class Device extends Model
         'name',
         'identifier',
         'code',
-        'is_active'
+        'is_active',
     ];
 }

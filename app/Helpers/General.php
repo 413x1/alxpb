@@ -26,4 +26,8 @@ class General
         $decimals = $withDecimals ? 2 : 0;
         return 'Rp ' . number_format($amount, $decimals, ',', '.').',00';
     }
+
+    public static function isActiveRoute($routeName, $output = 'active') {
+        return request()->routeIs($routeName) ? $output : '';
+    }
 }

@@ -26,6 +26,7 @@ return new class extends Migration
             $table->unsignedBigInteger('voucher_id')->nullable();
 
             $table->boolean('is_active')->default(true);
+            $table->text('snap_token')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

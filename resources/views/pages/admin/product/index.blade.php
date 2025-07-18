@@ -10,8 +10,9 @@
         <div class="row starter-main">
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header card-no-border pb-0">
+                    <div class="card-header card-no-border pb-0 d-flex justify-content-between">
                         <h3>{{ $product->name }}</h3>
+                        <a href="{{ route('dashboard.products.edit') }}" class="btn btn-primary">Edit</a>
                     </div>
                     <div class="card-body">
                         <h4>Description :</h4>
@@ -26,12 +27,12 @@
                             <h4>Banners :</h4>
                             <div class="product-slider owl-carousel owl-theme mb-2" id="sync1">
                                 @foreach($product->banners as $banner)
-                                    <div class="item"><img src="{{ $banner->url }}" alt=""/></div>
+                                    <div class="item"><img src="{{ $banner->image_url }}" alt=""/></div>
                                 @endforeach
                             </div>
                             <div class="owl-carousel owl-theme" id="sync2">
                                 @foreach($product->banners as $banner)
-                                    <div class="item"><img src="{{ $banner->url }}" alt=""/></div>
+                                    <div class="item"><img src="{{ $banner->image_url }}" alt=""/></div>
                                 @endforeach
                             </div>
                         </div>

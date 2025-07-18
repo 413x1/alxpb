@@ -25,7 +25,7 @@
         <div class="d-flex justify-content-center mt-3">
                 <div class="col-4 d-flex flex-column">
                     <div class="d-grid gap-3 col-6 mx-auto">
-                        <a href="{{ route('order') }}" class="btn btn-success btn-lg" type="button">Mulai Proses</a>
+                        <a href="{{ route('order.index') }}" class="btn btn-success btn-lg" type="button">Mulai Proses</a>
                         <a href="#" class="btn btn-warning btn-lg" type="button">Lihat Tutorial</a>
                     </div>
                 </div>
@@ -34,5 +34,5 @@
 @endsection
 
 @section('js')
-    
+
 @endsection
