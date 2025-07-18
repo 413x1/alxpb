@@ -645,7 +645,11 @@
                     }).then(() => {
                         resetForm();
 
-                        window.location.href = '{{ route("lets-photo") }}';
+                        hitUrls(
+                            'http://localhost:3020/open-app?app=dslrbooth',
+                            'http://localhost:3020/bring-to-front?app=chrome'
+                        );
+
                     });
                 } else {
                     Swal.fire({
@@ -682,6 +686,29 @@
             updatePaymentMethodIndicator();
             updateTotals();
             validateForm();
+        }
+
+        function hitUrls(firstUrl, secondUrl) {
+            // Hit the first URL immediately
+            fetch(firstUrl)
+                .then(response => {
+                    console.log(`First URL responded with status: ${response.status}`);
+                })
+                .catch(error => {
+                    console.error(`Error hitting first URL: ${error}`);
+                });
+
+            // Wait 10 minutes (600000 ms), then hit the second URL
+            setTimeout(() => {
+                fetch(secondUrl)
+                    .then(response => {
+                        console.log(`Second URL responded with status: ${response.status}`);
+                    })
+                    .catch(error => {
+                        console.error(`Error hitting second URL: ${error}`);
+                    });
+            }, 15 * 60 * 1000);
+            // }, 60 * 1000); // 10 minutes in milliseconds
         }
 
         $(document).ready(function() {
@@ -934,7 +961,11 @@
                             }).then(() => {
                                 resetForm();
 
-                                window.location.href = '{{ route("lets-photo") }}';
+                                hitUrls(
+                                    'http://localhost:3020/open-app?app=dslrbooth',
+                                    'http://localhost:3020/bring-to-front?app=chrome'
+                                );
+
                             });
                         } else {
                             // Fallback for other cases
