@@ -38,4 +38,24 @@ class DashboardOrderController extends Controller
         return redirect()->route('dashboard.orders.index')
             ->with('success', 'Order status updated successfully.');
     }
+
+    public function destroy(Order $order)
+    {
+        try {
+            $order->is_active = false;
+            $order->save();
+
+            $order->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order deleted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete order: '.$e->getMessage(),
+            ], 500);
+        }
+    }
 }

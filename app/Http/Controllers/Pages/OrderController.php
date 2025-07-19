@@ -81,11 +81,13 @@ class OrderController extends Controller
                 'transaction_time' => now()->toISOString(),
             ]);
 
-            // Mark voucher as used
-            $voucherCheck['voucher']->update([
-                'is_used' => true,
-                'used_at' => now()
-            ]);
+            if(!$voucherCheck['voucher']->is_willcard){
+                // Mark voucher as used
+                $voucherCheck['voucher']->update([
+                    'is_used' => true,
+                    'used_at' => now()
+                ]);
+            }
 
             $order = Order::create($data);
 

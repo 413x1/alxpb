@@ -88,6 +88,8 @@ class DashboardUserController extends Controller
      */
     public function destroy(User $user)
     {
+        $user->is_active = false;
+        $user->save();
         $user->delete();
 
         return redirect()->route('dashboard.users.index')

@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\Voucher;
 
 use function Pest\Laravel\assertDatabaseHas;
+use function Pest\Laravel\assertSoftDeleted;
+use function Pest\Laravel\delete;
 use function Pest\Laravel\get;
 use function Pest\Laravel\put;
 
@@ -195,4 +197,44 @@ describe('Order Edit', function () {
             'is_active' => true,
         ]);
     });
+});
+
+it('can delete order', function () {
+    // Arrange
+    $order = Order::factory()->create([
+        'is_active' => true,
+    ]);
+
+    // Act
+    $response = delete(route('dashboard.orders.destroy', $order));
+
+    // Assert
+    $response->assertOk()
+        ->assertJson([
+            'success' => true,
+            'message' => 'Order deleted successfully.',
+        ]);
+
+    // Check that is_active is set to false
+    assertDatabaseHas('orders', [
+        'id' => $order->id,
+        'is_active' => false,
+    ]);
+
+    // Check that the record is soft deleted
+    assertSoftDeleted('orders', ['id' => $order->id]);
+});
+
+it('handles delete order exception', function () {
+    // Arrange
+    $order = Order::factory()->create();
+
+    // Mock an exception scenario by using a non-existent order ID
+    // Or you could mock the Order model to throw an exception
+
+    // Act
+    $response = delete(route('dashboard.orders.destroy', 99999));
+
+    // Assert
+    $response->assertStatus(404); // Laravel will return 404 for non-existent model
 });

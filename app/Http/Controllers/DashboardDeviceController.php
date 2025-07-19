@@ -65,6 +65,8 @@ class DashboardDeviceController extends Controller
 
     public function destroy(Device $device)
     {
+        $device->is_active = false;
+        $device->save();
         $device->delete();
 
         return redirect()->route('dashboard.devices.index')

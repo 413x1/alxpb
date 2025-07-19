@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('vouchers', function (Blueprint $table) {
             $table->id();
             $table->string('code');
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->boolean('is_used')->default(false);
             $table->boolean('is_willcard')->default(false);
             $table->dateTime('used_at')->nullable();
