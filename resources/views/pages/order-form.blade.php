@@ -429,7 +429,7 @@
                                 @if ($product->banners)
                                     @foreach ($product->banners as $banner)
                                         <div class="carousel-item @if($loop->first) active @endif">
-                                            <img src="{{ $banner->url }}" class="img-thumbnail d-block w-100" alt="{{ $banner->name }}">
+                                            <img src="{{ $banner->image_url }}" class="img-thumbnail d-block w-100" alt="{{ $banner->name }}">
                                         </div>
                                     @endforeach
                                 @endif
