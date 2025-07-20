@@ -16,7 +16,7 @@
                 @foreach ($banners as $banner)
                     <div class="col-4 flex-shrink-0 px-2">
                         <div class="ratio ratio-4x6">
-                            <img src="{{ $banner->url }}" class="img-thumbnail w-100" alt="{{ $banner->name }}">
+                            <img src="{{ $banner->image_url }}" class="img-thumbnail w-100" alt="{{ $banner->name }}">
                         </div>
                     </div>
                 @endforeach
