@@ -22,4 +22,24 @@ class VoucherFactory extends Factory
             'created_by' => User::factory(),
         ];
     }
+
+    public function redeemed(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_used' => true,
+                'used_at' => now(),
+            ];
+        });
+    }
+
+    public function available(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_used' => false,
+                'used_at' => null,
+            ];
+        });
+    }
 }

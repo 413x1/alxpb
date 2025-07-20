@@ -339,6 +339,8 @@ it('handles concurrent voucher usage', function () {
     $voucher = Voucher::factory()->create([
         'code' => 'CONCURRENT',
         'is_used' => false,
+        'used_at' => null,
+        'is_willcard' => false, // Explicitly set as non-wildcard
     ]);
 
     session(['active_device_id' => 1]);
@@ -353,6 +355,11 @@ it('handles concurrent voucher usage', function () {
     ]);
 
     $response1->assertStatus(200);
+
+    // Verify voucher is marked as used after first request
+    $voucher->refresh();
+    expect($voucher->is_used)->toBeTrue()
+        ->and($voucher->used_at)->not->toBeNull();
 
     // Second order with same voucher should fail
     $response2 = $this->post('/order', [

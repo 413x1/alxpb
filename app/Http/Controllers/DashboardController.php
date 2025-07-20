@@ -12,12 +12,19 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $banner = Banner::count();
-        $device = Device::count();
-        $user = User::count();
-        $order = Order::count();
-        $voucher = Voucher::count();
+        $totalOrder = Order::count();
+        $pendingOrder = Order::where('status', 'pending')->count();
+        $completedOrder = Order::where('status', 'paid')->count();
+        $completedAmount = Order::where('status', 'paid')->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])->sum('total_price');
+        $devices = Device::withCount('orders')->get();
 
-        return view('pages.admin.index.index', compact('banner', 'device', 'user', 'order', 'voucher'));
+        $voucher = Voucher::count();
+        $redeemedVoucher = Voucher::redeemed()->count();
+        $availableVoucher = Voucher::available()->count();
+
+        $user = User::count();
+        $deviceCount = Device::count();
+
+        return view('pages.admin.index.index',compact('totalOrder', 'pendingOrder', 'completedOrder', 'completedAmount', 'user', 'voucher', 'redeemedVoucher', 'availableVoucher', 'devices', 'deviceCount'));
     }
 }

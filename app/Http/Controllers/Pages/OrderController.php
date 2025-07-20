@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Voucher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Midtrans\Config;
 use Midtrans\Snap;
 
@@ -61,42 +62,72 @@ class OrderController extends Controller
                 ], 400);
             }
 
-            // Validate voucher
-            $voucherCheck = $this->validateVoucher($validated['voucher_code']);
+            // Use database transaction with atomic voucher checking and updating
+            try {
+                $result = DB::transaction(function () use ($validated, $data) {
+                    // Check and update voucher atomically for non-wildcard vouchers
+                    $voucher = Voucher::where('code', $validated['voucher_code'])->first();
 
-            if (!$voucherCheck['success']) {
+                    // Validate voucher existence
+                    if (!$voucher) {
+                        throw new \Exception('Voucher code not found');
+                    }
+
+                    // Check if the voucher is already used (for both wildcard and non-wildcard)
+                    if ($voucher->is_used || !is_null($voucher->used_at)) {
+                        throw new \Exception('Voucher has already been used');
+                    }
+
+                    // For non-wildcard vouchers, use atomic update with where conditions
+                    if (!$voucher->is_willcard) {
+                        // Try to atomically update voucher from unused to used
+                        $updated = Voucher::where('id', $voucher->id)
+                            ->where('is_used', false)
+                            ->whereNull('used_at')
+                            ->update([
+                                'is_used' => true,
+                                'used_at' => now()
+                            ]);
+
+                        // If no rows were updated, voucher was already used (race condition)
+                        if ($updated === 0) {
+                            throw new \Exception('Voucher has already been used');
+                        }
+                    }
+
+                    // Apply voucher - bypass payment
+                    $data['is_voucher'] = true;
+                    $data['voucher_id'] = $voucher->id;
+                    $data['status'] = 'paid'; // Direct paid status for voucher
+                    $data['gateway_response'] = json_encode([
+                        'payment_type' => 'voucher',
+                        'voucher_code' => $validated['voucher_code'],
+                        'transaction_time' => now()->toISOString(),
+                    ]);
+
+                    // Create order
+                    $order = Order::create($data);
+
+                    return [
+                        'success' => true,
+                        'order' => $order,
+                        'voucher' => $voucher
+                    ];
+                });
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Order created successfully with voucher payment',
+                    'order' => $result['order'],
+                    'payment_method' => 'voucher'
+                ]);
+
+            } catch (\Exception $e) {
                 return response()->json([
                     'success' => false,
-                    'message' => $voucherCheck['message'],
+                    'message' => $e->getMessage(),
                 ], 400);
             }
-
-            // Apply voucher - bypass payment
-            $data['is_voucher'] = true;
-            $data['voucher_id'] = $voucherCheck['voucher']->id;
-            $data['status'] = 'paid'; // Direct paid status for voucher
-            $data['gateway_response'] = json_encode([
-                'payment_type' => 'voucher',
-                'voucher_code' => $validated['voucher_code'],
-                'transaction_time' => now()->toISOString(),
-            ]);
-
-            if(!$voucherCheck['voucher']->is_willcard){
-                // Mark voucher as used
-                $voucherCheck['voucher']->update([
-                    'is_used' => true,
-                    'used_at' => now()
-                ]);
-            }
-
-            $order = Order::create($data);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Order created successfully with voucher payment',
-                'order' => $order,
-                'payment_method' => 'voucher'
-            ]);
 
         } else if ($validated['payment_method'] === 'qris') {
             // QRIS Payment - need Midtrans
@@ -186,6 +217,4 @@ class OrderController extends Controller
             'message' => 'Voucher is valid',
         ];
     }
-
-    // Remove the checkVoucher method as it's no longer needed
 }
