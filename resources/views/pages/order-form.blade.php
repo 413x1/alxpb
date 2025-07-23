@@ -647,7 +647,7 @@
 
                         hitUrls(
                             'http://localhost:3020/open-app?app=dslrbooth',
-                            'http://localhost:3020/bring-to-front?app=chrome'
+                            'http://localhost:3020/open-app?app=chrome'
                         );
 
                     });
@@ -707,8 +707,8 @@
                     .catch(error => {
                         console.error(`Error hitting second URL: ${error}`);
                     });
-            }, 15 * 60 * 1000);
-            // }, 60 * 1000); // 10 minutes in milliseconds
+            // }, 15 * 60 * 1000); //15 minutes in milliseconds
+            }, 30 * 1000); // half minute in milliseconds
         }
 
         $(document).ready(function() {
