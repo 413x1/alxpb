@@ -13,6 +13,7 @@ use App\Http\Controllers\Datatable\VoucherController;
 use App\Http\Controllers\DeviceAuthenticateController;
 use App\Http\Controllers\Pages\HomepageController;
 use App\Http\Controllers\Pages\OrderController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -55,6 +56,8 @@ Route::group(['middleware' => ['check.auth']], function () {
             'orders' => DashboardOrderController::class,
         ]);
 
+        Route::post('vouchers/generate-voucher-code', [DashboardVoucherController::class, 'generateVoucherCode'])->name('vouchers.generate-voucher-code');
+
         Route::group(['prefix' => 'datatable', 'as' => 'datatable.'], function () {
             Route::get('vouchers', VoucherController::class)->name('vouchers');
             Route::get('orders', \App\Http\Controllers\Datatable\OrderController::class)->name('orders');
@@ -65,11 +68,16 @@ Route::group(['middleware' => ['check.auth']], function () {
             Route::get('edit', [DashboardProductController::class, 'edit'])->name('edit');
             Route::put('update', [DashboardProductController::class, 'update'])->name('update');
         });
+
+        Route::group(['prefix' => 'settings', 'as' => 'settings.'], function () {
+            Route::get('/', [SettingController::class, 'index'])->name('index');
+            Route::put('/', [SettingController::class, 'update'])->name('update');
+        });
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('login.logout');
 });
 
-Route::get('lets-photo', function (){
+Route::get('lets-photo', function () {
     return view('pages.lets-photo');
 })->name('lets-photo');

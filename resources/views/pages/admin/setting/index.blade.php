@@ -1,53 +1,109 @@
 @extends('layouts.admin.app')
 
-
 @section('content')
     <!-- Container-fluid starts-->
     <div class="container-fluid">
-        <div class="row starter-main">
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+        <div class="row">
             <div class="col-sm-12">
                 <div class="card">
-                    <div class="card-header card-no-border pb-0">
-                        <h3>Kick start your project development !</h3>
-                        <div class="card-header-right">
-                            <ul class="list-unstyled card-option">
-                                <li><i class="fa-solid fa-ellipsis"></i></li>
-                                <li><i class="fa-solid fa-code view-html"></i></li>
-                                <li><i class="fa-solid fa-maximize full-card"></i></li>
-                                <li><i class="fa-solid fa-minus minimize-card"></i></li>
-                                <li><i class="fa-solid fa-rotate-right reload-card"></i></li>
-                                <li><i class="fa-solid fa-xmark close-card"></i></li>
-                            </ul>
-                        </div>
-                    </div>
                     <div class="card-body">
-                        <p>Getting start with your project custom requirements using a ready template which is quite difficult and time taking process, Admiro Admin provides useful features to kick start your project development with no efforts !</p>
-                        <ul>
-                            <li>
-                                <p>Admiro Admin provides you getting start pages with different layouts, use the layout as per your custom requirements and just change the branding, menu & content.</p>
-                            </li>
-                            <li>
-                                <p>Every components in Admiro Admin are decoupled, it means use only components you actually need! Remove unnecessary and extra code easily just by excluding the path to specific SCSS, JS file.</p>
-                            </li>
-                            <li>
-                                <p>It use PUG as template engine to generate pages and whole template quickly using node js. Save your time for doing the common changes for each page (i.e menu, branding and footer) by generating template with pug.</p>
-                            </li>
-                        </ul>
-                        <div class="code-box-copy">
-                            <button class="code-box-copy__btn btn-clipboard" data-clipboard-target="#example-head" title="Copy"><i class="fa-regular fa-copy"></i></button>
-                            <pre><code class="language-html" id="example-head">&lt;!-- Cod Box Copy begin --&gt;
-&lt;p&gt;Getting start with your project custom requirements using a ready template which is quite difficult and time taking process, Admiro Admin provides useful features to kick start your project development with no efforts !&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;Admiro Admin provides you getting start pages with different layouts, use the layout as per your custom requirements and just change the branding, menu & content.&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Every components in Admiro Admin are decoupled, it means use only components you actually need! Remove unnecessary and extra code easily just by excluding the path to specific SCSS, JS file.&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;It use PUG as template engine to generate pages and whole template quickly using node js. Save your time for doing the common changes for each page (i.e menu, branding and footer) by generating template with pug.&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;!-- Cod Box Copy end --&gt;</code></pre>
-                        </div>
+                        <form action="{{ route('dashboard.settings.update') }}" method="POST" class="form theme-form basic-form">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="row">
+                                <div class="col">
+                                    <div class="mb-3">
+                                        <h5 class="f-w-600 mb-2">Full Name <span class="text-danger">*</span></h5>
+                                        <input class="form-control @error('name') is-invalid @enderror"
+                                               type="text"
+                                               name="name"
+                                               value="{{ old('name', $user->name) }}"
+                                               placeholder="Enter full name *"
+                                               required>
+                                        @error('name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <h5 class="f-w-600 mb-2">Username <span class="text-danger">*</span></h5>
+                                        <input class="form-control @error('username') is-invalid @enderror"
+                                               type="text"
+                                               name="username"
+                                               value="{{ old('username', $user->username) }}"
+                                               placeholder="Enter unique username"
+                                               required>
+                                        @error('username')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <h5 class="f-w-600 mb-2">Email Address <span class="text-danger">*</span></h5>
+                                        <input class="form-control @error('email') is-invalid @enderror"
+                                               type="email"
+                                               name="email"
+                                               value="{{ old('email', $user->email) }}"
+                                               placeholder="Enter email address"
+                                               required>
+                                        @error('email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+                                    <div class="mb-3">
+                                        <h5 class="f-w-600 mb-2">New Password</h5>
+                                        <input class="form-control @error('password') is-invalid @enderror"
+                                               type="password"
+                                               name="password"
+                                               placeholder="Enter new password (leave blank to keep current)"
+                                               minlength="8">
+                                        @error('password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <small class="form-text text-muted">Leave blank if you don't want to change password</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-success">Update Settings
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Container-fluid Ends-->
+    <!-- Container-fluid ends-->
+@endsection
+
+@section('after-js')
+    <script>
+        $(document).ready(function() {
+            // Auto-hide alerts after 5 seconds
+            $('.alert').delay(5000).fadeOut(300);
+        });
+    </script>
 @endsection

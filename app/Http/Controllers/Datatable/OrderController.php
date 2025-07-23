@@ -52,8 +52,13 @@ class OrderController extends Controller
                 $actions = '';
 
                 // Edit button only
-                $actions .= '<button type="button" class="btn btn-sm btn-warning" onclick="editOrder('.$order->id.')" title="Edit">
+                $actions .= '<button type="button" class="btn btn-sm btn-warning me-1" onclick="editOrder('.$order->id.')" title="Edit">
                                 <i class="icon-pencil-alt"></i>
+                            </button>';
+
+                // Delete button
+                $actions .= '<button type="button" class="btn btn-sm btn-danger" onclick="deleteOrder('.$order->id.')" title="Delete">
+                                <i class="icon-trash"></i>
                             </button>';
 
                 return $actions;

@@ -1,5 +1,8 @@
 @extends('layouts.admin.app')
 
+@section('after-css')
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/theme/css/vendors/datatables.css') }}">
+@endsection
 
 @section('content')
     <!-- Container-fluid starts-->
@@ -31,13 +34,15 @@
                                             <td>{{ $device->code }}</td>
                                             <td>{{ $device->is_active ? 'Active' : 'Non active' }}</td>
                                             <td>
-                                                <a href="{{ route('dashboard.devices.edit', $device->getKey()) }}" class="btn btn-secondary" type="button" data-bs-toggle="tooltip" data-bs-original-title="btn btn-secondary">
+                                                <a href="{{ route('dashboard.devices.edit', $device->getKey()) }}" class="btn btn-secondary me-2" type="button" data-bs-toggle="tooltip" data-bs-original-title="Edit Device">
                                                     <i class="fa-solid fa-pen"></i>
                                                 </a>
+                                                <button class="btn btn-danger btn-delete" type="button" data-device-id="{{ $device->getKey() }}" data-device-name="{{ $device->name }}" data-bs-toggle="tooltip" data-bs-original-title="Delete Device">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
-
                                     </tbody>
                                 </table>
                             </div>
@@ -50,4 +55,59 @@
         </div>
     </div>
     <!-- Container-fluid Ends-->
+
+    <!-- Hidden form for delete requests -->
+    <form id="delete-form" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
+@endsection
+
+@section('after-js')
+    <script src="{{ asset('assets/theme/js/sweetalert/sweetalert2.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            // Handle delete button clicks
+            $('.btn-delete').on('click', function() {
+                const deviceId = $(this).data('device-id');
+                const deviceName = $(this).data('device-name');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: `You want to delete device "${deviceName}"? This action cannot be undone!`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel',
+                    customClass: {
+                        confirmButton: 'btn btn-danger',
+                        cancelButton: 'btn btn-secondary'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading
+                        Swal.fire({
+                            title: 'Deleting...',
+                            text: 'Please wait while we delete the device.',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Set the form action to the delete route
+                        const form = $('#delete-form');
+                        form.attr('action', `{{ url('dashboard/devices') }}/${deviceId}`);
+
+                        // Submit the form
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 @endsection

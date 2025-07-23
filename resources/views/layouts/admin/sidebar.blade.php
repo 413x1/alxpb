@@ -48,8 +48,8 @@
                 </a>
             </li>
 
-            <li class="sidebar-list">
-                <a class="sidebar-link" href="{{ route('dashboard.products.index') }}">
+            <li class="sidebar-list {{ General::isActiveRoute('dashboard.settings.*') }}">
+                <a class="sidebar-link" href="{{ route('dashboard.settings.index') }}">
                     <i class="fa-solid fa-gear"></i>
                     <h6 class="f-w-600">Settings</h6>
                 </a>

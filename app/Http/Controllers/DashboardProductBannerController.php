@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class DashboardProductBannerController extends Controller
 {
     private string $base_view_path;
+
     private Product $product;
 
     public function __construct()
@@ -20,7 +21,7 @@ class DashboardProductBannerController extends Controller
 
     public function create(Product $product)
     {
-        return view($this->base_view_path . 'create', [
+        return view($this->base_view_path.'create', [
             'product' => $product,
         ]);
     }
@@ -52,7 +53,7 @@ class DashboardProductBannerController extends Controller
 
     public function edit(Product $product, ProductBanner $banner)
     {
-        return view($this->base_view_path . 'edit', [
+        return view($this->base_view_path.'edit', [
             'banner' => $banner,
             'product' => $this->product,
         ]);
@@ -90,18 +91,20 @@ class DashboardProductBannerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product,ProductBanner $banner)
+    public function destroy(Product $product, ProductBanner $banner)
     {
         // Delete image file
         if ($banner->url && Storage::disk('public')->exists($banner->url)) {
             Storage::disk('public')->delete($banner->url);
         }
 
+        $banner->is_active = false;
+        $banner->save();
         $banner->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Banner deleted successfully.'
+            'message' => 'Banner deleted successfully.',
         ]);
     }
 }
