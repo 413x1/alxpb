@@ -116,12 +116,6 @@ it('can create voucher order successfully with valid voucher', function () {
 
     $voucher->refresh();
     expect($voucher->used_at)->not()->toBeNull();
-
-    // Check gateway_response is set
-    $order = Order::latest()->first();
-    $gatewayResponse = json_decode($order->gateway_response, true);
-    expect($gatewayResponse['payment_type'])->toBe('voucher')
-        ->and($gatewayResponse['voucher_code'])->toBe('SAVE50');
 });
 
 it('fails to create order with invalid voucher', function () {

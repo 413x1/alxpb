@@ -99,11 +99,6 @@ class OrderController extends Controller
                     $data['is_voucher'] = true;
                     $data['voucher_id'] = $voucher->id;
                     $data['status'] = 'paid'; // Direct paid status for voucher
-                    $data['gateway_response'] = json_encode([
-                        'payment_type' => 'voucher',
-                        'voucher_code' => $validated['voucher_code'],
-                        'transaction_time' => now()->toISOString(),
-                    ]);
 
                     // Create order
                     $order = Order::create($data);

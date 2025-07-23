@@ -38,9 +38,9 @@ if (! function_exists('generateVoucherCode')) {
                 $code .= $characters[random_int(0, 35)]; // 26 letters + 10 numbers = 36 total
             }
 
-            // Check if code is unique (not exists with is_used=true AND used_at=null)
+            // Check if code is unique (not exists with is_used=false AND used_at=null)
             $exists = Voucher::where('code', $code)
-                ->where('is_used', true)
+                ->where('is_used', false)
                 ->whereNull('used_at')
                 ->exists();
 
