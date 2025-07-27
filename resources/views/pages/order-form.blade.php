@@ -645,9 +645,8 @@
                     }).then(() => {
                         resetForm();
 
-                        hitUrls(
-                            'http://localhost:3020/open-app?app=dslrbooth',
-                            'http://localhost:3020/open-app?app=chrome'
+                        hitUrl(
+                            'http://localhost:3020/open-app?app=dslrbooth'
                         );
 
                     });
@@ -688,27 +687,14 @@
             validateForm();
         }
 
-        function hitUrls(firstUrl, secondUrl) {
-            // Hit the first URL immediately
-            fetch(firstUrl)
+        function hitUrl(url) {
+            fetch(url)
                 .then(response => {
-                    console.log(`First URL responded with status: ${response.status}`);
+                    console.log(`URL responded with status: ${response.status}`);
                 })
                 .catch(error => {
-                    console.error(`Error hitting first URL: ${error}`);
+                    console.error(`Error hitting URL: ${error}`);
                 });
-
-            // Wait 10 minutes (600000 ms), then hit the second URL
-            setTimeout(() => {
-                fetch(secondUrl)
-                    .then(response => {
-                        console.log(`Second URL responded with status: ${response.status}`);
-                    })
-                    .catch(error => {
-                        console.error(`Error hitting second URL: ${error}`);
-                    });
-            // }, 15 * 60 * 1000); //15 minutes in milliseconds
-            }, 30 * 1000); // half minute in milliseconds
         }
 
         $(document).ready(function() {
@@ -961,9 +947,8 @@
                             }).then(() => {
                                 resetForm();
 
-                                hitUrls(
-                                    'http://localhost:3020/open-app?app=dslrbooth',
-                                    'http://localhost:3020/bring-to-front?app=chrome'
+                                hitUrl(
+                                    'http://localhost:3020/open-app?app=dslrbooth'
                                 );
 
                             });
