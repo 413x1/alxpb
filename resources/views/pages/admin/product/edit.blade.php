@@ -2,6 +2,7 @@
 
 @section('after-css')
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/theme/css/vendors/datatables.css') }}">
 @endsection
 
 @section('content')
@@ -194,7 +195,6 @@
         });
 
         function deleteBanner(productId, id) {
-            console.log(productId, id);
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -202,7 +202,7 @@
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: 'Yes, delete it!',
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({

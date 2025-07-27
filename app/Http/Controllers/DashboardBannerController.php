@@ -91,7 +91,8 @@ class DashboardBannerController extends Controller
         if ($banner->url) {
             Storage::disk('public')->delete($banner->url);
         }
-
+        $banner->is_active = false;
+        $banner->save();
         $banner->delete();
 
         return redirect()->route('dashboard.banners.index')

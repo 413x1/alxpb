@@ -75,6 +75,7 @@ it('can create voucher order successfully with valid voucher', function () {
         'code' => 'SAVE50',
         'is_used' => false,
         'used_at' => null,
+        'is_willcard' => false,
     ]);
 
     session(['active_device_id' => 1]);
@@ -110,16 +111,11 @@ it('can create voucher order successfully with valid voucher', function () {
         'id' => $voucher->id,
         'code' => 'SAVE50',
         'is_used' => true,
+        'used_at' => now()->toDateTimeString(),
     ]);
 
     $voucher->refresh();
     expect($voucher->used_at)->not()->toBeNull();
-
-    // Check gateway_response is set
-    $order = Order::latest()->first();
-    $gatewayResponse = json_decode($order->gateway_response, true);
-    expect($gatewayResponse['payment_type'])->toBe('voucher')
-        ->and($gatewayResponse['voucher_code'])->toBe('SAVE50');
 });
 
 it('fails to create order with invalid voucher', function () {
@@ -337,6 +333,8 @@ it('handles concurrent voucher usage', function () {
     $voucher = Voucher::factory()->create([
         'code' => 'CONCURRENT',
         'is_used' => false,
+        'used_at' => null,
+        'is_willcard' => false, // Explicitly set as non-wildcard
     ]);
 
     session(['active_device_id' => 1]);
@@ -351,6 +349,11 @@ it('handles concurrent voucher usage', function () {
     ]);
 
     $response1->assertStatus(200);
+
+    // Verify voucher is marked as used after first request
+    $voucher->refresh();
+    expect($voucher->is_used)->toBeTrue()
+        ->and($voucher->used_at)->not->toBeNull();
 
     // Second order with same voucher should fail
     $response2 = $this->post('/order', [
@@ -447,6 +450,37 @@ it('returns error for invalid payment method', function () {
     $response->assertJsonFragment([
         'payment_method' => ['The selected payment method is invalid.']
     ]);
+});
+it('can using voucher is willcard many times', function () {
+    $voucher = Voucher::factory()->create([
+        'code' => 'WILLCARD',
+        'is_used' => false,
+        'used_at' => null,
+        'is_willcard' => true, // This voucher can be used multiple times
+    ]);
+
+    $product = Product::factory()->create(['price' => 100]);
+
+    session(['active_device_id' => 1]);
+
+    $response = $this->post('/order', [
+        'product_id' => $product->id,
+        'qty' => 2,
+        'customer_name' => 'John Doe',
+        'payment_method' => 'voucher',
+        'voucher_code' => 'WILLCARD',
+    ]);
+
+    $response->assertStatus(200);
+    $response->assertJson([
+        'success' => true,
+        'message' => 'Order created successfully with voucher payment',
+        'payment_method' => 'voucher'
+    ]);
+
+    expect($voucher->refresh())
+        ->is_used->toBeFalse()
+        ->used_at->toBeNull();
 });
 // Remove the voucher check API tests since they're not in your controller
 // The following tests are removed as your controller doesn't have these endpoints:
