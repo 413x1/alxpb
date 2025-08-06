@@ -661,7 +661,7 @@
                     confirmButtonColor: '#28a745',
                     confirmButtonText: 'Continue'
                 }).then(() => {
-                    setOderId(statusUpdateData.order_id);
+                    setOderId(orderData.id);
                     openDSLRBooth();
 
                     showThanks()

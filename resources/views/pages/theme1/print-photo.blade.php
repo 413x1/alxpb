@@ -166,12 +166,13 @@
 <script>
 
     function printCopies() {
-        const ncopy = parseInt("{{ $order->qty }}")
+        const ncopy = parseInt("{{ $order->qty }}") - 1
         $.ajax({
             url: "{{ $device->api_url }}api/print",
             type: 'GET',
             data: {
-                count: ncopy
+                count: ncopy,
+                password: "{{$device->api_key}}"
             },
             success: function(response) {
                 console.log('Print request successful:', response);
