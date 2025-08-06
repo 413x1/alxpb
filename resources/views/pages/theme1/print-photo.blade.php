@@ -124,13 +124,16 @@
 
     </style>
 
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
 </head>
 <body>
     <div class="hero">
         <div class="container mt-5">
             <div class="row d-flex justify-content-center align-items-center" style="height: 100px;">
                 <div class=" col-4 title-strip text-center">
-                    Share Photo
+                    Print & Share Photo
                 </div>
             </div>
 
@@ -144,9 +147,10 @@
                 <div class="col-4">
                     <form method="POST">
                         @csrf
-                        <input class="form-control form-control-lg" type="text" placeholder="example@email.com">
-                        <button type="submit" class="btn btn-primary btn-lg">share</button>
+                        <input class="form-control form-control-lg" type="text" id="emailDest" placeholder="example@email.com">
+                        <button type="button" class="btn btn-primary btn-lg btn-share">Share</button>
                     </form>
+                    <div id="countdown"></div>
                 </div>
             </div>
         </div>
@@ -154,5 +158,107 @@
     </div>
 
     <script src="{{ asset('assets/bootstrap/js/bootstrap.min.js') }}"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- jQuery (if not already included) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+
+    function printCopies() {
+        const ncopy = parseInt("{{ $order->qty }}")
+        $.ajax({
+            url: "{{ $device->api_url }}api/print",
+            type: 'GET',
+            data: {
+                count: ncopy
+            },
+            success: function(response) {
+                console.log('Print request successful:', response);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Print request failed:', textStatus, errorThrown);
+            }
+        });
+    }
+
+    function shareViaEmail() {
+
+        const emailForm = $('#emailDest');
+        if(!emailForm.val().trim()) {
+            emailForm.focus();
+            emailForm[0].reportValidity();
+            return;
+        }
+
+        $.ajax({
+            url: "{{ $device->api_url }}api/share/email",
+            type: 'GET',
+            data: {
+                email: emailForm.val().trim(),
+                password: "{{$device->api_key}}"
+            },
+            success: function(response) {
+                showSwalWithTimer('Success', 'Email shared successfully!', 'success', 5, ()=> {
+                    window.close()
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                showSwalWithTimer('Failed', 'Failed to share email.', 'error', 5, ()=> {
+                    window.close()
+                });
+            }
+        });
+    }
+
+    function showSwalWithTimer(title, text, icon, seconds, callback) {
+        let timerInterval;
+        Swal.fire({
+            title: title,
+            html: `${text}<br><strong>Closing in <b id="countdown">${seconds}</b> second(s)...</strong>`,
+            icon: icon,
+            timer: seconds * 1000,
+            timerProgressBar: true,
+            didOpen: () => {
+                const countdown = Swal.getHtmlContainer().querySelector('#countdown');
+                timerInterval = setInterval(() => {
+                    countdown.textContent = parseInt(countdown.textContent) - 1;
+                }, 1000);
+            },
+            willClose: () => {
+                clearInterval(timerInterval);
+            }
+        }).then(() => {
+            if (typeof callback === "function") {
+                callback();
+            }
+        });
+    }
+
+    function startCountdownAndClose(seconds = 30) {
+        let remaining = seconds;
+
+        const interval = setInterval(() => {
+            $('#countdown').text(`This tab will close in ${remaining} second(s)...`);
+
+            if (remaining <= 0) {
+                clearInterval(interval);
+                window.close(); // Will only work if the tab was opened via window.open()
+            }
+
+            remaining--;
+        }, 1000);
+    }
+
+    $(document).ready(function() {
+
+        startCountdownAndClose(120);
+        printCopies()
+
+        $('.btn-share').on('click', shareViaEmail);
+
+    });
+
+</script>
 </body>
 </html>

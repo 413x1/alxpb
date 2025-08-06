@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('/device/login', [DeviceAuthenticateController::class, 'index'])->name('device.login');
+Route::get('/orders/{orderId}', [OrderController::class, 'show'])->name('orders.show');
 Route::group(['middleware' => ['check.device']], function () {
     Route::post('/device/auth', [DeviceAuthenticateController::class, 'authtenticate'])->name('device.auth');
 

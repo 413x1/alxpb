@@ -86,6 +86,21 @@
                                     </div>
                                 </div>
 
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <h5 class="f-w-600 mb-2">Api Key<span class="text-danger">*</span></h5>
+                                        <input class="form-control @error('api_key') is-invalid @enderror"
+                                               type="text"
+                                               name="api_key"
+                                               value="{{ old('api_key') }}"
+                                               placeholder="Enter Api Key"
+                                               required>
+                                        @error('api_key')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="row">

@@ -241,6 +241,68 @@
 
 <script>
 
+    function setOderId(intOrderId) {
+        $.ajax({
+            url: 'http://localhost:3020/active-order',
+            type: 'GET',
+            data: { id: intOrderId },
+            success: function(response) {
+                console.log('Order Data:', response);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Error fetching active order:', textStatus, errorThrown);
+            }
+        });
+    }
+
+    function openDSLRBooth() {
+        $.ajax({
+            url: 'http://localhost:3020/open-app',
+            type: 'GET',
+            data: { app: 'dslrbooth' },
+            success: function(response) {
+                console.log('App opened successfully:', response);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Error opening app:', textStatus, errorThrown);
+            }
+        });
+    }
+
+    function shareViaEmail(email) {
+        $.ajax({
+            url: "{{ $device->api_url }}api/share/email",
+            type: 'GET',
+            data: {
+                email: email,
+                password: "{{$device->api_key}}"
+            },
+            success: function(response) {
+                console.log('Email shared successfully:', response);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Error sharing via email:', textStatus, errorThrown);
+            }
+        });
+    }
+
+    function printCopies(count) {
+        $.ajax({
+            url: "{{ $device->api_url }}api/print",
+            type: 'GET',
+            data: {
+                count: count
+            },
+            success: function(response) {
+                console.log('Print request successful:', response);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Print request failed:', textStatus, errorThrown);
+            }
+        });
+    }
+
+
     // Define a function to switch sections
     function goToPaymentSection() {
         const name = $('#customerName');
@@ -526,11 +588,9 @@
                         confirmButtonColor: '#28a745',
                         confirmButtonText: 'Continue'
                     }).then(() => {
-                        // resetForm();
 
-                        // hitUrl(
-                        //     'http://localhost:3020/open-app?app=dslrbooth'
-                        // );
+                        setOderId(response.order.id);
+                        openDSLRBooth()
 
                         showThanks()
 
@@ -601,11 +661,8 @@
                     confirmButtonColor: '#28a745',
                     confirmButtonText: 'Continue'
                 }).then(() => {
-                    // resetForm();
-
-                    // hitUrl(
-                    //     'http://localhost:3020/open-app?app=dslrbooth'
-                    // );
+                    setOderId(statusUpdateData.order_id);
+                    openDSLRBooth();
 
                     showThanks()
 

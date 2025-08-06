@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\Device;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Voucher;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Midtrans\Config;
@@ -211,5 +215,15 @@ class OrderController extends Controller
             'voucher' => $voucher,
             'message' => 'Voucher is valid',
         ];
+    }
+
+    public function show(int $orderId): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        $order = Order::find($orderId);
+        $device = Device::find($order->device_id);
+        return view('pages.theme1.print-photo', [
+            'order' => $order,
+            'device' => $device,
+        ]);
     }
 }

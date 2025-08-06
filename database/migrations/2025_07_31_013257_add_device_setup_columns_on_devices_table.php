@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('devices', function (Blueprint $table) {
             $table->string('api_url')->nullable();
+            $table->string('api_key')->nullable();
             $table->string('trigger_url')->nullable();
         });
     }
@@ -24,6 +25,7 @@ return new class extends Migration
     {
         Schema::table('devices', function (Blueprint $table) {
             $table->dropColumn('api_url');
+            $table->dropColumn('api_key');
             $table->dropColumn('trigger_url');
         });
     }
