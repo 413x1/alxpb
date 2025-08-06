@@ -57,6 +57,34 @@
                                         @enderror
                                     </div>
                                 </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <h5 class="f-w-600 mb-2">API Url <span class="text-danger">*</span></h5>
+                                        <input class="form-control @error('api_url') is-invalid @enderror"
+                                               type="text"
+                                               name="api_url"
+                                               value="{{ old('api_url', $device->api_url) }}"
+                                               placeholder="Enter Api Url"
+                                               required>
+                                        @error('api_url')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <h5 class="f-w-600 mb-2">Trigger Url <span class="text-danger">*</span></h5>
+                                        <input class="form-control @error('trigger_url') is-invalid @enderror"
+                                               type="text"
+                                               name="trigger_url"
+                                               value="{{ old('trigger_url', $device->trigger_url) }}"
+                                               placeholder="Enter Trigger Url"
+                                               required>
+                                        @error('trigger_url')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="row">

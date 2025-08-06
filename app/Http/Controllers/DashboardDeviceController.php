@@ -32,6 +32,8 @@ class DashboardDeviceController extends Controller
             'name' => 'required|string|max:255',
             'identifier' => 'required|string|max:255|unique:devices,identifier',
             'code' => 'required|string|max:255|unique:devices,code',
+            'api_url' => 'required|url',
+            'trigger_url' => 'required|url',
             'is_active' => 'boolean',
         ]);
 
@@ -54,6 +56,8 @@ class DashboardDeviceController extends Controller
             'name' => 'required|string|max:255',
             'identifier' => 'required|string|max:255|unique:devices,identifier,'.$device->id,
             'code' => 'required|string|max:255|unique:devices,code,'.$device->id,
+            'api_url' => 'required|url',
+            'trigger_url' => 'required|url',
             'is_active' => 'boolean',
         ]);
 

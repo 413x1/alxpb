@@ -13,6 +13,8 @@ class Device extends BaseModel
         'name',
         'identifier',
         'code',
+        'api_url',
+        'trigger_url',
         'is_active',
     ];
 

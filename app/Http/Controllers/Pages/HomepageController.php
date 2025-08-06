@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
+use App\Models\Product;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -13,9 +14,9 @@ class HomepageController extends Controller
 {
     public function index(Request $request): Factory|Application|View
     {
-        $banners = Banner::where('is_active', true)->orderBy('updated_at', 'desc')->get(); 
-        return view('pages.index', [
-            'banners' => $banners
+        $product = Product::with(['banners'])->where('is_active', true)->first();
+        return view('pages.theme1.choose-strip', [
+            'product' => $product,
         ]);
     }
 }

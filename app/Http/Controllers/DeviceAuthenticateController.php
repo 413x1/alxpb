@@ -13,7 +13,7 @@ class DeviceAuthenticateController extends Controller
 {
     public function index(Request $request): Factory|Application|View
     {
-        return view('pages.lock');
+        return view('pages.theme1.index');
     }
 
     public function authtenticate(Request $request)

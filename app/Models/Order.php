@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends BaseModel
 {
@@ -42,5 +44,15 @@ class Order extends BaseModel
     public function voucher(): BelongsTo
     {
         return $this->belongsTo(Voucher::class);
+    }
+
+    public function result(): HasOne
+    {
+        return $this->hasOne(ImageResult::class)->latest();
+    }
+
+    public function results(): HasMany
+    {
+        return $this->hasMany(ImageResult::class);
     }
 }

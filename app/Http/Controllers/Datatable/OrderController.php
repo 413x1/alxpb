@@ -11,7 +11,7 @@ class OrderController extends Controller
 {
     public function __invoke(Request $request)
     {
-        $orders = Order::latest()->with(['customer', 'device', 'product'])
+        $orders = Order::latest()->with(['customer', 'device', 'product', 'result', 'results'])
             ->select([
                 'orders.*',
             ]);
@@ -50,6 +50,13 @@ class OrderController extends Controller
             })
             ->addColumn('action', function ($order) {
                 $actions = '';
+
+                // show result modal button
+                if($order->result){
+                    $actions .= '<button type="button" class="btn btn-sm btn-info me-1" onclick="showResult('.$order->result->id.')" title="Show Result">
+                                    <i class="fa-solid fa-image"></i>
+                                </button>';
+                }
 
                 // Edit button only
                 $actions .= '<button type="button" class="btn btn-sm btn-warning me-1" onclick="editOrder('.$order->id.')" title="Edit">

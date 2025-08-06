@@ -21,6 +21,8 @@
                                         <th scope="col">Name</th>
                                         <th scope="col">Identifier</th>
                                         <th scope="col">Code</th>
+                                        <th scope="col">Api Url</th>
+                                        <th scope="col">Trigger Url</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
@@ -32,6 +34,8 @@
                                             <td>{{ $device->name }}</td>
                                             <td>{{ $device->identifier }}</td>
                                             <td>{{ $device->code }}</td>
+                                            <td>{{ $device->api_url }}</td>
+                                            <td>{{ $device->trigger_url }}</td>
                                             <td>{{ $device->is_active ? 'Active' : 'Non active' }}</td>
                                             <td>
                                                 <a href="{{ route('dashboard.devices.edit', $device->getKey()) }}" class="btn btn-secondary me-2" type="button" data-bs-toggle="tooltip" data-bs-original-title="Edit Device">
