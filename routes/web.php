@@ -27,9 +27,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//    return view('pages.index');
-// });
+Route::get('/cobaa', function () {
+   return view('pages.theme1.process');
+});
 
 Route::get('/device/login', [DeviceAuthenticateController::class, 'index'])->name('device.login');
 Route::get('/orders/{orderId}', [OrderController::class, 'show'])->name('orders.show');
