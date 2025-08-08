@@ -157,7 +157,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <!-- Midtrans Snap JS -->
-    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    @if(config('app.env') == 'production')
+        <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    @else
+        <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    @endif
 </head>
 <body>
     <div class="hero">
@@ -653,7 +657,7 @@
                         <div class="text-start">
                             <p><strong>Order ID:</strong> ${paymentResult.order_id}</p>
                             <p><strong>Transaction ID:</strong> ${paymentResult.transaction_id}</p>
-                            <p><strong>Amount:</strong> Rp ${new Intl.NumberFormat('id-ID').format(paymentResult.gross_amount)}</p>
+                            <p><sstrong>Amount:</sstrong> Rp ${new Intl.NumberFormat('id-ID').format(paymentResult.gross_amount)}</p>
                             <p><strong>Payment Method:</strong> ${paymentResult.payment_type.toUpperCase()}</p>
                             <p><strong>Status:</strong> <span class="text-success">PAID</span></p>
                         </div>
