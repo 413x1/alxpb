@@ -26,13 +26,20 @@ class DashboardVoucherController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'code' => strtoupper($request->input('code')),
+        ]);
+
         $validated = $request->validate([
             'code' => [
                 'required',
                 'string',
-                'size:4',  // Exactly 4 characters
-                'regex:/^[A-Za-z0-9]{4}$/',  // Only uppercase letters and numbers, exactly 4 chars
                 'unique:vouchers,code',
+                function ($attribute, $value, $fail) {
+                    if (!preg_match('/^[A-Z0-9]{4}$|^[0-9]{12}$/', $value)) {
+                        $fail('The '.$attribute.' must be 4 character uppercase.');
+                    }
+                },
             ],
             'description' => 'nullable|string|max:1000',
             'is_willcard' => 'boolean',
@@ -53,13 +60,20 @@ class DashboardVoucherController extends Controller
 
     public function update(Request $request, Voucher $voucher)
     {
+        $request->merge([
+            'code' => strtoupper($request->input('code')),
+        ]);
+
         $validated = $request->validate([
             'code' => [
                 'required',
                 'string',
-                'size:4',  // Exactly 4 characters
-                'regex:/^[A-Za-z0-9]{4}$/',  // Only uppercase letters and numbers, exactly 4 chars,
-                'unique:vouchers,code,'.$voucher->id, // Unique except for the current voucher
+                'unique:vouchers,code',
+                function ($attribute, $value, $fail) {
+                    if (!preg_match('/^[A-Z0-9]{4}$|^[0-9]{12}$/', $value)) {
+                        $fail('The '.$attribute.' must be 4 character uppercase.');
+                    }
+                },
             ],
             'description' => 'nullable|string|max:1000',
             'is_willcard' => 'nullable|boolean',

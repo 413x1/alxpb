@@ -7,25 +7,15 @@
 
     <link rel="stylesheet" href="{{ asset('assets/bootstrap/css/bootstrap.min.css') }}">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@800&display=swap" rel="stylesheet">
+
     <style>
         body, html {
             margin: 0;
             padding: 0;
-            height: 100%;
             font-family: Arial, sans-serif;
-        }
-
-        .hero {
-            height: 100vh;
-            background-image: url('{{ asset('assets/sanaphoto/background.png') }}'); /* Replace with your actual image path */
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
         }
 
         input[type="text"] {
@@ -60,15 +50,23 @@
             background-color: darkblue;
         }
 
+        .font-lague-spartan {
+            font-family: "League Spartan", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 800;
+            font-style: normal;
+        }
+
         .number-box {
             width: 100%;
             height: 300px;
-            background-color: #3263d3;  /* light gray background */
+            background: #0e48cf;
+            background: linear-gradient(358deg, rgba(14, 72, 207, 1) 0%, rgba(43, 179, 224, 1) 100%);
+            /* background-color: #3263d3;  light gray background */
             display: flex;
             justify-content: center;     /* center horizontally */
             align-items: center;         /* center vertically */
-            font-size: 4rem;             /* bigger text */
-            font-weight: bold;
+            font-size: 10rem;             /* bigger text */
             color: #ffffff;                 /* text color */
             border: 4px solid #ffffff;      /* thicker and darker border */
             border-radius: 12px;         /* rounded corners */
@@ -76,14 +74,8 @@
         }
 
         .number-box-control {
-            width: 50%;
-            height: 75px;
-            background-color: #3263d3;  /* light gray background */
-            display: flex;
-            justify-content: center;     /* center horizontally */
-            align-items: center;         /* center vertically */
-            font-size: 2rem;             /* bigger text */
-            font-weight: bold;
+            background: #0e348c;
+            background: linear-gradient(2deg, rgba(14, 52, 140, 1) 0%, rgba(34, 167, 212, 1) 100%);
             color: #ffffff;                 /* text color */
             border: 4px solid #faf1f1;      /* thicker and darker border */
             border-radius: 12px;         /* rounded corners */
@@ -101,16 +93,28 @@
 
         .title-strip {
             border-radius: 12px;
-            background-color: #3263d3;
             justify-content: center;     /* center horizontally */
             align-items: center;         /* center vertically */
             font-size: 2rem;             /* bigger text */
             font-weight: bold;
             border: 4px solid #faf1f1;      /* thicker and darker border */
+            background: #0e348c;
+            background: linear-gradient(2deg,rgba(14, 52, 140, 1) 0%, rgba(34, 167, 212, 1) 100%);
+        }
+
+        .title-choose-strip {
+            display: inline-block !important;
+            border-radius: 25px;
+            background: #0e348c;
+            background: linear-gradient(56deg,rgba(14, 52, 140, 1) 0%, rgba(34, 167, 212, 1) 100%);
+            justify-content: center;     /* center horizontally */
+            align-items: center;         /* center vertically */
+            font-size: 3rem;             /* bigger text */
+            border: 4px solid #faf1f1;      /* thicker and darker border */
+            color: #faf1f1;
         }
 
         .strip-icon {
-            width: 30%;
         }
 
         .strip-play {
@@ -118,9 +122,8 @@
         }
 
         .number-box-payment {
-            width: 100%;
-            height: 300px;
-            background-color: #cc447d;  /* light gray background */
+            background: #61092D;
+            background: linear-gradient(185deg,rgba(97, 9, 45, 1) 0%, rgba(207, 87, 137, 1) 100%);
             display: flex;
             justify-content: center;     /* center horizontally */
             align-items: center;         /* center vertically */
@@ -128,7 +131,7 @@
             font-weight: bold;
             color: #ffffff;                 /* text color */
             border: 4px solid #ffd4d4;      /* thicker and darker border */
-            border-radius: 12px;         /* rounded corners */
+            border-radius: 30px;         /* rounded corners */
             box-sizing: border-box;      /* include border in width */
         }
 
@@ -138,17 +141,111 @@
         }
 
         .title-strip-payment {
-            border-radius: 12px;
-            background-color: #cc447d;
+            border-radius: 30px;
+            background: #61092D;
+            background: linear-gradient(275deg,rgba(97, 9, 45, 1) 0%, rgba(207, 87, 137, 1) 100%);
             justify-content: center;     /* center horizontally */
             align-items: center;         /* center vertically */
-            font-size: 2rem;             /* bigger text */
+            font-size: 3rem;             /* bigger text */
             font-weight: bold;
             border: 4px solid #faf1f1;      /* thicker and darker border */
+            color: #faf1f1;
+        }
+
+        .subtitle-strip-payment {
+            justify-content: center;     /* center horizontally */
+            align-items: center;         /* center vertically */
+            font-size: 3rem;             /* bigger text */
+            color: #faf1f1;
         }
 
         .payment-icon {
             max-width: 70%;
+        }
+
+        .touch-start {
+            background-color: #3263d3;
+            cursor: pointer;
+            color: white;
+            font-size: 2rem;
+            border: 4px solid #faf1f1;
+            font-weight: bold;
+            border-radius: 30px;
+        }
+
+        .touch-start:hover {
+            background-color: #7091f6;
+        }
+
+        .custom-button {
+            display: inline-block;         /* Fit width to content */
+            padding: 0.2rem 0 0 0;             /* Vertical padding only */
+            text-align: center;
+            background-color: #3263d3;     /* Example background color */
+            color: white;
+            font-size: 2rem;
+            border: 4px solid #67a8ecff;
+            border-radius: 30px;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;           /* Prevent wrapping */
+        }
+
+        .height-80 {
+            min-height: 50vh !important;
+        }
+
+        .w-80 {
+            width: 70% !important;
+        }
+
+        .box-transparant {
+            background-color: rgba(235, 155, 182, 0.4); /* black with 50% opacity */
+            color: white;                        /* optional: for contrast */
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .quantity {
+            font-size: 3rem;
+        }
+
+        .box-next {
+            border-radius: 12px;
+            background: #61092D;
+            background: linear-gradient(63deg,rgba(97, 9, 45, 1) 0%, rgba(207, 87, 137, 1) 100%);
+            justify-content: center;     /* center horizontally */
+            align-items: center;         /* center vertically */
+            font-size: 2rem;             /* bigger text */
+            font-weight: bold;
+            border: 5px solid #faf1f1;      /* thicker and darker border */
+            color: #faf1f1;
+            cursor: pointer;
+        }
+
+        .title-fiil-name {
+            display: inline-block !important;
+            border-radius: 25px;
+            background: #0e348c;
+            background: linear-gradient(56deg,rgba(14, 52, 140, 1) 0%, rgba(34, 167, 212, 1) 100%);
+            justify-content: center;     /* center horizontally */
+            align-items: center;         /* center vertically */
+            font-size: 3rem;             /* bigger text */
+            border: 4px solid #faf1f1;      /* thicker and darker border */
+            color: #faf1f1;
+        }
+
+        .payment-text {
+            color: #faf1f1;
+            font-size: 3rem;
+        }
+
+        .customer-name {
+            height: 2rem;           /* Make it taller */
+            font-size: 2rem !important;        /* Larger text */
+            padding: 1rem 1.5rem;   /* More inner space */
+            border: 4px solid #61092D !important;
+            background: rgba(255, 255, 255, 0.78);
         }
 
     </style>
@@ -163,78 +260,154 @@
         <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
     @endif
 </head>
-<body>
-    <div class="hero">
-        <form method="POST">
-            @csrf
-            <input type="hidden" id="productId" value="{{ $product->id }}" name="productId">
+<body style="background-image: url('{{ asset('assets/sanaphoto/background.png') }}'); background-size: cover; background-repeat: no-repeat;">
+    <form method="POST">
+        @csrf
+        <input type="hidden" id="productId" value="{{ $product->id }}" name="productId">
 
-            <div class="container mt-5" id="chooseStripSection">
+        <div class="container mt-5" id="indexSection">
+            <div class="row justify-content-center">
+                <div class="col-4 bg-red p-4">
+                    <img src="{{ asset('assets/sanaphoto/logo.png') }}" alt="" width="100%" class="img-fluid">
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-4 d-flex justify-content-center">
+                    <div class="custom-button font-lague-spartan px-5" id="btnTouchStart">
+                        Touch to Start
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <div class="row d-flex justify-content-center align-items-center" style="height: 100px;">
-                    <div class=" col-4 title-strip text-center">
-                        NUMBER OF STRIP
+        <div class="container-fluid p-5" id="chooseStripSection">
+
+            <div class="row mt-3 mb-3">
+                <div class="col-3">
+                    <div class="title-choose-strip w-100 font-lague-spartan text-center">
+                        Choose Strip
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="title-choose-strip w-100 font-lague-spartan text-center">
+                        Pilih Strip
                     </div>
                 </div>
 
-                <div class="row d-flex justify-content-center align-items-center">
-                    <div class="col-4">
-                        <h5>Your name : </h5>
-                        <input class="form-control form-control-lg" name="name" id="customerName" type="text" placeholder="John Doe" required>
-                        <input type="hidden" name="qty" id="qtyInput" value="1">
+            </div>
+            <div class="row">
+                <div class="col-6 height-80">
+                    <div class="box-transparant d-flex justify-content-center align-items-center" style="border-radius:25px; height:100%">
+                        <img class="w-80" src=" {{ asset('assets/sanaphoto/strip.png') }}" alt="">
                     </div>
                 </div>
-
-                <div class="row justify-content-center">
-                    <div class="col-2 p-4 d-flex justify-content-end align-items-center">
-                        <div class="number-box-control" id="qtyControlMinus">
-                            <img class="strip-icon" src="{{ asset('assets/images/payments/minus.png') }}">
+                <div class="col-6 height-80">
+                    <div class="box-transparant d-flex flex-column align-items-center justify-content-between" style="border-radius:25px; height:100%">
+                        <div class="title-strip text-center font-lague-spartan quantity px-5">
+                            Quantity
                         </div>
-                    </div>
-                    <div class="col-4 p-4">
-                        <div class="number-box qty-box">
-                            1
+                        <div class="title-strip text-center font-lague-spartan quantity px-5">
+                            Rp {{ number_format($product->price, 0, ',', '.') }}, 00
                         </div>
-                    </div>
-                    <div class="col-2 p-4 d-flex justify-content-start align-items-center">
-                        <div class="number-box-control" id="qtyControlPlus">
-                            <img class="strip-icon" src="{{ asset('assets/images/payments/plus.png') }}">
+                        <div class="number-box qty-box font-lague-spartan" style="width:60%; height:40%;">
+                                1
                         </div>
-                    </div>
-                </div>
-
-                <div class="row d-flex justify-content-end align-items-center" style="height: 100px;">
-                    <div class="col-2 p-4 d-flex justify-content-end align-items-center m-2">
-                        <div class="number-box-control" id="nextSection">
-                            <img class="strip-play" src="{{ asset('assets/images/payments/play.png') }}">
+                        <div class="d-flex justify-content-center align-items-center gap-4">
+                            <div class="number-box-control d-flex justify-content-center align-items-center p-5" id="qtyControlMinus">
+                                <img class="strip-icon" src="{{ asset('assets/images/payments/minus.png') }}" width="50px">
+                            </div>
+                            <div class="number-box-control d-flex justify-content-center align-items-center p-5" id="qtyControlPlus">
+                                <img class="strip-icon" src="{{ asset('assets/images/payments/plus.png') }}" width="50px">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <div class="d-flex gap-4 justify-content-end m-4">
+                <div class="col-4">
+                    <input class="form-control form-control-lg font-lague-spartan customer-name" name="name" id="customerName" type="text" placeholder="John Doe" required>
+                    <input type="hidden" name="qty" id="qtyInput" value="1">
+                </div>
+                <div class="box-next px-5 py-3" id="nextSection">
+                    Next
+                </div>
+            </div>
 
-            <div class="container mt-5" id="choosePaymentSection">
-                <div class="row d-flex justify-content-center align-items-center" style="height: 100px;">
-                    <div class=" col-4 title-strip-payment text-center">
-                        Choose Payment
+            <!-- <div class="row d-flex justify-content-center align-items-center" style="height: 100px;">
+                <div class=" col-4 title-strip text-center">
+                    NUMBER OF STRIP
+                </div>
+            </div>
+
+            <div class="row d-flex justify-content-center align-items-center">
+                <div class="col-4">
+                    <h5>Your name : </h5>
+                    <input class="form-control form-control-lg" name="name" id="customerName" type="text" placeholder="John Doe" required>
+                    <input type="hidden" name="qty" id="qtyInput" value="1">
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-2 p-4 d-flex justify-content-end align-items-center">
+                    <div class="number-box-control" id="qtyControlMinus">
+                        <img class="strip-icon" src="{{ asset('assets/images/payments/minus.png') }}">
+                    </div>
+                </div>
+                <div class="col-4 p-4">
+                    <div class="number-box qty-box">
+                        1
+                    </div>
+                </div>
+                <div class="col-2 p-4 d-flex justify-content-start align-items-center">
+                    <div class="number-box-control" id="qtyControlPlus">
+                        <img class="strip-icon" src="{{ asset('assets/images/payments/plus.png') }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row d-flex justify-content-end align-items-center" style="height: 100px;">
+                <div class="col-2 p-4 d-flex justify-content-end align-items-center m-2">
+                    <div class="number-box-control" id="nextSection">
+                        <img class="strip-play" src="{{ asset('assets/images/payments/play.png') }}">
+                    </div>
+                </div>
+            </div> -->
+        </div>
+
+
+        <div class="container mt-5" id="choosePaymentSection">
+            <div class="d-flex flex-column">
+                <div class="d-flex flex-column justify-content-center align-items-center" style="">
+                    <div class="col-6 title-strip-payment font-lague-spartan text-center mt-4">
+                        Choose Payment Method
+                    </div>
+                    <div class="col-6 subtitle-strip-payment font-lague-spartan text-center mt-4">
+                        Pilih Metode Pembayaran
                     </div>
                 </div>
 
-                <div class="row justify-content-center">
+                <div class="d-flex flex-row justify-content-center">
                     <div class="col-4 p-4">
-                        <div class="number-box-payment" id="usingPaymentGate">
-                            <img class="payment-icon" src="{{ asset('assets/images/payments/qr.png') }}">
+                        <div class="number-box-payment w-100 p-4 d-flex flex-column" id="usingPaymentGate">
+                            <img class="payment-icon" src="{{ asset('assets/sanaphoto/qrcode.png') }}">
+                            <div class="payment-text font-lague-spartan m-5">
+                                QRIS
+                            </div>
                         </div>
                     </div>
                     <div class="col-4 p-4">
-                        <div class="number-box-payment" id="usingCash">
-                            <img class="payment-icon" src="{{ asset('assets/images/payments/money.png') }}">
+                        <div class="number-box-payment w-100 p-4 d-flex flex-column" id="usingCash">
+                            <img class="payment-icon" src="{{ asset('assets/sanaphoto/money.png') }}">
+                            <div class="payment-text font-lague-spartan m-5">
+                                Voucher
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 
     <script src="{{ asset('assets/bootstrap/js/bootstrap.min.js') }}"></script>
 
@@ -319,8 +492,15 @@
         }
 
         // Proceed if input is valid
+        $('#indexSection').hide();
         $('#chooseStripSection').hide();
         $('#choosePaymentSection').show();
+    }
+
+    function goToChooseStripSection() {
+        $('#indexSection').hide();
+        $('#chooseStripSection').show();
+        $('#choosePaymentSection').hide();
     }
 
     function updateQuantity(change) {
@@ -732,10 +912,14 @@
     $(document).ready(function() {
 
         // Initially hide the payment section
+        $('#chooseStripSection').hide();
         $('#choosePaymentSection').hide();
+
+        $('#btnTouchStart').on('click', goToChooseStripSection);
 
         // Attach the function to the click event
         $('#nextSection').on('click', goToPaymentSection);
+
 
         // Button click events
         $('#qtyControlPlus').on('click', function () {
