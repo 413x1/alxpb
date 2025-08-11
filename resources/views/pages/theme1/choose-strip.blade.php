@@ -306,7 +306,7 @@
                         <div class="title-strip text-center font-lague-spartan quantity px-5">
                             Quantity
                         </div>
-                        <div class="title-strip text-center font-lague-spartan quantity px-5">
+                        <div class="title-strip text-center font-lague-spartan quantity px-5" id="quantityBox">
                             Rp {{ number_format($product->price, 0, ',', '.') }}, 00
                         </div>
                         <div class="number-box qty-box font-lague-spartan" style="width:60%; height:40%;">
@@ -333,46 +333,6 @@
                     Next
                 </div>
             </div>
-
-            <!-- <div class="row d-flex justify-content-center align-items-center" style="height: 100px;">
-                <div class=" col-4 title-strip text-center">
-                    NUMBER OF STRIP
-                </div>
-            </div>
-
-            <div class="row d-flex justify-content-center align-items-center">
-                <div class="col-4">
-                    <h5>Your name : </h5>
-                    <input class="form-control form-control-lg" name="name" id="customerName" type="text" placeholder="John Doe" required>
-                    <input type="hidden" name="qty" id="qtyInput" value="1">
-                </div>
-            </div>
-
-            <div class="row justify-content-center">
-                <div class="col-2 p-4 d-flex justify-content-end align-items-center">
-                    <div class="number-box-control" id="qtyControlMinus">
-                        <img class="strip-icon" src="{{ asset('assets/images/payments/minus.png') }}">
-                    </div>
-                </div>
-                <div class="col-4 p-4">
-                    <div class="number-box qty-box">
-                        1
-                    </div>
-                </div>
-                <div class="col-2 p-4 d-flex justify-content-start align-items-center">
-                    <div class="number-box-control" id="qtyControlPlus">
-                        <img class="strip-icon" src="{{ asset('assets/images/payments/plus.png') }}">
-                    </div>
-                </div>
-            </div>
-
-            <div class="row d-flex justify-content-end align-items-center" style="height: 100px;">
-                <div class="col-2 p-4 d-flex justify-content-end align-items-center m-2">
-                    <div class="number-box-control" id="nextSection">
-                        <img class="strip-play" src="{{ asset('assets/images/payments/play.png') }}">
-                    </div>
-                </div>
-            </div> -->
         </div>
 
 
@@ -526,6 +486,8 @@
         // Disable buttons if limits are reached
         $minus.prop('disabled', newQty === MIN_QTY);
         $plus.prop('disabled', newQty === MAX_QTY);
+
+        return newQty;
     }
 
     function showThanks() {
@@ -909,7 +871,17 @@
 
     }
 
+    function updatePriceDisplay(updatedPrice) {
+        // Format to Indonesian currency style
+        $('#quantityBox').text(
+            'Rp ' + updatedPrice.toLocaleString('id-ID') + ',00'
+        );
+    }
+
     $(document).ready(function() {
+        let pricePerUnit = {{ $product->price }};
+        let qty = parseInt($('#qtyInput').val());
+        let total = pricePerUnit * qty;
 
         // Initially hide the payment section
         $('#chooseStripSection').hide();
@@ -923,11 +895,15 @@
 
         // Button click events
         $('#qtyControlPlus').on('click', function () {
-            updateQuantity(1);
+            qty = updateQuantity(1);
+            total = pricePerUnit * qty;
+            updatePriceDisplay(total)
         });
 
         $('#qtyControlMinus').on('click', function () {
-            updateQuantity(-1);
+            qty = updateQuantity(-1);
+            total = pricePerUnit * qty;
+            updatePriceDisplay(total)
         });
 
         // Initial state (in case default is at limit)

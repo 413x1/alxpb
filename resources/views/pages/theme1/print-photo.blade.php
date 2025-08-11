@@ -166,7 +166,7 @@
 <script>
 
     function printCopies() {
-        const ncopy = parseInt("{{ $order->qty }}") - 1u
+        const ncopy = parseInt("{{ $order->qty }}") - 1
         $.ajax({
             url: "{{ $device->api_url }}api/print",
             type: 'GET',
