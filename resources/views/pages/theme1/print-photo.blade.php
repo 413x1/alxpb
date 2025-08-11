@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SanaPhoto</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="stylesheet" href="{{ asset('assets/bootstrap/css/bootstrap.min.css') }}">
 
@@ -265,10 +266,41 @@
         }, 1000);
     }
 
+    function updateOrderPrintCount(itteration) {
+        $.ajax({
+            url: `/order/{{ $order->id }}/print`,
+            type: 'POST',
+            data: {
+                itteration: parseInt(itteration),
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                console.log(response.message)
+                if (response.success) {
+                    console.log(response.message);
+                } else {
+                    console.warn('Unexpected response:', response);
+                }
+            },
+            error: function(xhr) {
+                console.error('Error:', xhr.responseText);
+            }
+        });
+    }
+
+
     $(document).ready(function() {
 
+        let allowedQty = parseInt("{{ $order->qty }}");
+        let numOfPrint = parseInt("{{ $order->print_count }}");
+
         startCountdownAndClose(120);
-        printCopies()
+
+        if(numOfPrint < allowedQty) {
+            printCopies()
+            updateOrderPrintCount(allowedQty)
+        }
+
         openChromeApp()
 
         $('.btn-share').on('click', shareViaEmail);

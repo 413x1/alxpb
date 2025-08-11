@@ -11,6 +11,7 @@ use App\Models\Voucher;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Midtrans\Config;
@@ -224,6 +225,23 @@ class OrderController extends Controller
         return view('pages.theme1.print-photo', [
             'order' => $order,
             'device' => $device,
+        ]);
+    }
+
+    public function updatePrintCount(int $order_id, Request $request): JsonResponse
+    {
+        $order = Order::find($order_id);
+        $request->validate([
+            'itteration' => 'required|numeric|min:1|max:5',
+        ]);
+
+        $order->print_count = $order->print_count + $request->input('itteration');
+
+        $order->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order updated successfully',
         ]);
     }
 }

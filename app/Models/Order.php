@@ -23,7 +23,8 @@ class Order extends BaseModel
         'is_voucher',
         'voucher_id',
         'is_active',
-        'snap_token'
+        'snap_token',
+        'print_count'
     ];
 
     public function customer(): BelongsTo
