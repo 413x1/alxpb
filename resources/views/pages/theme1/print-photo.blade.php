@@ -165,6 +165,20 @@
 
 <script>
 
+    function openChromeApp() {
+        $.ajax({
+            url: '{{ $device->trigger_url }}open-app',
+            type: 'GET',
+            data: { app: 'chrome' },
+            success: function(response) {
+                console.log('Success:', response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
     function printCopies() {
         const ncopy = parseInt("{{ $order->qty }}") - 1
         $.ajax({
@@ -255,6 +269,7 @@
 
         startCountdownAndClose(120);
         printCopies()
+        openChromeApp()
 
         $('.btn-share').on('click', shareViaEmail);
 
