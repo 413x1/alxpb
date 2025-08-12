@@ -526,12 +526,6 @@
             customClass: {
                 popup: 'swal2-custom-bg'
             },
-            backdrop: `
-                rgba(0,0,123,0.4)
-                url("{{ asset('assets/images/payments/nyan-cat.gif') }}")
-                left top
-                no-repeat
-            `,
             didOpen: () => {
                 Swal.showLoading();
             },
@@ -774,7 +768,7 @@
                                     <p><strong>Quantity:</strong> ${response.order.qty}</p>
                                     <p><strong>Total:</strong> Rp ${new Intl.NumberFormat('id-ID').format(response.order.total_price)}</p>
                                     <p><strong>Payment Method:</strong> <span class="text-warning">Voucher</span></p>
-                                    <p><strong>Voucher Code:</strong> <span class="text-success">${transactionObj.voucherCode}</span></p>
+                                    <p><strong>Voucher Code:</strong> <span class="text-success">****</span></p>
                                     <p><strong>Status:</strong> <span class="text-success">PAID</span></p>
                                 </div>
                             `,
