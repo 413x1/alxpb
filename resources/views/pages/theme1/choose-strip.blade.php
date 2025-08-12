@@ -577,7 +577,6 @@
                     <p><strong>Nama:</strong> ${transactionObj.customerName}</p>
                     <p><strong>Produk:</strong> ${transactionObj.productName}</p>
                     <p><strong>Quantity:</strong> ${transactionObj.qty}</p>
-                    <p><strong>Harga Satuan:</strong> Rp ${new Intl.NumberFormat('id-ID').format(transactionObj.hargaSatuan)}</p>
                     <p><strong>Total:</strong> <span class="text-primary">Rp ${new Intl.NumberFormat('id-ID').format(transactionObj.totalHarga)}</span></p>
                     <p><strong>Metode Pembayaran:</strong> <span class="text-primary">${payments === 'qris' ? 'QRIS Payment' : 'Cash'}</span></p>
             `;
