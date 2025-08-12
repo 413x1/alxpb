@@ -401,7 +401,7 @@
             type: 'GET',
             data: {
                 id: intOrderId,
-                qty: qty,
+                qty: qty - 1,
                 api_url: apiUrl,
                 api_key: apiKey,
             },
