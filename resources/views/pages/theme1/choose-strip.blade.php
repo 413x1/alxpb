@@ -248,6 +248,12 @@
             background: rgba(255, 255, 255, 0.78);
         }
 
+        .swal2-custom-bg {
+            background: #f26fa6;
+            background: linear-gradient(322deg,rgba(242, 111, 166, 1) 0%, rgba(153, 11, 70, 1) 100%);
+            color: white; /* Optional: Ensure text is readable */
+        }
+
     </style>
 
     <!-- SweetAlert2 CSS -->
@@ -285,12 +291,7 @@
             <div class="row mt-3 mb-3">
                 <div class="col-3">
                     <div class="title-choose-strip w-100 font-lague-spartan text-center">
-                        Choose Strip
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="title-choose-strip w-100 font-lague-spartan text-center">
-                        Pilih Strip
+                        Strip Quantity
                     </div>
                 </div>
 
@@ -324,15 +325,23 @@
                 </div>
             </div>
 
-            <div class="d-flex gap-4 justify-content-end m-4">
+            <div class="d-flex gap-4 m-4 align-items-center">
+                <!-- Left-aligned Cancel button -->
+                <div class="box-next px-5 py-3 me-auto btnBack">
+                    Cancel
+                </div>
+
+                <!-- Right-aligned input and Next button -->
                 <div class="col-4">
                     <input class="form-control form-control-lg font-lague-spartan customer-name" name="name" id="customerName" type="text" placeholder="John Doe" required>
                     <input type="hidden" name="qty" id="qtyInput" value="1">
                 </div>
+
                 <div class="box-next px-5 py-3" id="nextSection">
                     Next
                 </div>
             </div>
+
         </div>
 
 
@@ -366,6 +375,12 @@
                     </div>
                 </div>
             </div>
+            <div class="d-flex m-4 justify-content-center">
+                <!-- Left-aligned Cancel button -->
+                <div class="box-next px-5 py-3 btnBack">
+                    Cancel
+                </div>
+            </div>
         </div>
     </form>
 
@@ -378,11 +393,18 @@
 
 <script>
 
-    function setOderId(intOrderId) {
+    function setOderId(intOrderId, qty) {
+        const apiUrl = '{{ $device->api_url }}';
+        const apiKey = '{{ $device->api_key }}';
         $.ajax({
             url: 'http://localhost:3020/active-order',
             type: 'GET',
-            data: { id: intOrderId },
+            data: {
+                id: intOrderId,
+                qty: qty,
+                api_url: apiUrl,
+                api_key: apiKey,
+            },
             success: function(response) {
                 console.log('Order Data:', response);
             },
@@ -496,12 +518,14 @@
             html: "Please wait while we open the photo app...",
             width: 600,
             padding: "3em",
-            color: "#3263d3",
-            background: "#fff url({{ asset('assets/images/payments/trees.png') }})",
+            imageUrl: "{{ asset('assets/sanaphoto/cashier.png') }}",
             timer: 5000, // 20 seconds (in milliseconds)
             timerProgressBar: true,
             allowOutsideClick: false,
             allowEscapeKey: false,
+            customClass: {
+                popup: 'swal2-custom-bg'
+            },
             backdrop: `
                 rgba(0,0,123,0.4)
                 url("{{ asset('assets/images/payments/nyan-cat.gif') }}")
@@ -512,7 +536,8 @@
                 Swal.showLoading();
             },
             willClose: () => {
-                console.log("Swal closed after 20 seconds");
+                console.log("Swal closed after 5 seconds");
+                openDSLRBooth();
                 window.location.reload();
             }
         });
@@ -522,7 +547,7 @@
         let qty = parseInt($('#qtyInput').val());
         let hargaSatuan = parseInt("{{ $product->price }}");
         let productName = "{{ $product->name }}";
-        let totalHarga = qty *  hargaSatuan;
+        let totalHarga = hargaSatuan + (hargaSatuan/2 * (qty - 1));
         let productId = parseInt($('#productId').val());
 
         return {
@@ -542,6 +567,9 @@
             allowOutsideClick: false,
             allowEscapeKey: false,
             showConfirmButton: false,
+            customClass: {
+                popup: 'swal2-custom-bg'
+            },
             didOpen: () => {
                 Swal.showLoading();
             }
@@ -595,9 +623,13 @@
             showCancelButton: true,
             confirmButtonColor: '#28a745',
             cancelButtonColor: '#dc3545',
+            allowEscapeKey: false,
             confirmButtonText: 'Yes, Process!',
             cancelButtonText: 'Cancel',
             showLoaderOnConfirm: true,
+            customClass: {
+                popup: 'swal2-custom-bg'
+            },
             preConfirm: () => {
                 const formData = generateFormData(payments, transactionObj);
 
@@ -638,6 +670,9 @@
                         `,
                                         confirmButtonColor: '#dc3545',
                                         confirmButtonText: 'OK',
+                                        customClass: {
+                                            popup: 'swal2-custom-bg'
+                                        },
                                         didClose: () => {
                                             $('#voucherCode').focus().select().addClass('is-invalid');
                                             $('#voucherMessage').html(`
@@ -668,7 +703,7 @@
                         });
                 });
             },
-            allowOutsideClick: () => !Swal.isLoading()
+            allowOutsideClick: () => false,
         }).then((result) => {
             if (result.isConfirmed) {
                 const response = result.value;
@@ -686,7 +721,10 @@
                                     icon: 'info',
                                     title: 'Payment Pending',
                                     text: 'Your payment is being processed. Please complete the payment.',
-                                    confirmButtonColor: '#17a2b8'
+                                    confirmButtonColor: '#17a2b8',
+                                    customClass: {
+                                        popup: 'swal2-custom-bg'
+                                    },
                                 });
                             },
                             onError: function(result) {
@@ -694,7 +732,10 @@
                                     icon: 'error',
                                     title: 'Payment Failed',
                                     text: 'Payment failed. Please try again.',
-                                    confirmButtonColor: '#dc3545'
+                                    confirmButtonColor: '#dc3545',
+                                    customClass: {
+                                        popup: 'swal2-custom-bg'
+                                    },
                                 });
                             },
                             onClose: function() {
@@ -702,7 +743,10 @@
                                     icon: 'warning',
                                     title: 'Payment Cancelled',
                                     text: 'You closed the payment popup. Please try again if you want to complete the payment.',
-                                    confirmButtonColor: '#ffc107'
+                                    confirmButtonColor: '#ffc107',
+                                    customClass: {
+                                        popup: 'swal2-custom-bg'
+                                    },
                                 });
                             }
                         });
@@ -711,7 +755,10 @@
                             icon: 'error',
                             title: 'Payment Error',
                             text: 'Payment gateway token not found. Please try again or contact support.',
-                            confirmButtonColor: '#dc3545'
+                            confirmButtonColor: '#dc3545',
+                            customClass: {
+                                popup: 'swal2-custom-bg'
+                            },
                         });
                     }
                 } else if (response.success && response.payment_method === 'voucher') {
@@ -732,13 +779,15 @@
                                 </div>
                             `,
                         confirmButtonColor: '#28a745',
-                        confirmButtonText: 'Continue'
+                        confirmButtonText: 'Continue',
+                        customClass: {
+                            popup: 'swal2-custom-bg'
+                        },
                     }).then(() => {
 
-                        setOderId(response.order.id);
-                        openDSLRBooth()
-
-                        showThanks()
+                        setOderId(parseInt(response.order.id), parseInt(response.order.qty));
+                        showThanks();
+                        // setTimeout(openDSLRBooth, 5000);
 
                     });
                 } else {
@@ -747,7 +796,10 @@
                         icon: 'success',
                         title: 'Success!',
                         text: response.message || 'Order processed successfully!',
-                        confirmButtonColor: '#28a745'
+                        confirmButtonColor: '#28a745',
+                        customClass: {
+                            popup: 'swal2-custom-bg'
+                        },
                     }).then(() => {
                         resetForm();
 
@@ -773,6 +825,9 @@
             allowOutsideClick: false,
             allowEscapeKey: false,
             showConfirmButton: false,
+            customClass: {
+                popup: 'swal2-custom-bg'
+            },
             didOpen: () => {
                 Swal.showLoading();
             }
@@ -805,12 +860,15 @@
                         </div>
                     `,
                     confirmButtonColor: '#28a745',
-                    confirmButtonText: 'Continue'
+                    confirmButtonText: 'Continue',
+                    customClass: {
+                        popup: 'swal2-custom-bg'
+                    },
                 }).then(() => {
-                    setOderId(orderData.id);
-                    openDSLRBooth();
+                    setOderId(parseInt(orderData.id), parseInt(orderData.qty));
+                    showThanks();
+                    // setTimeout(openDSLRBooth, 5000);
 
-                    showThanks()
 
 
                 });
@@ -819,7 +877,10 @@
                     icon: 'warning',
                     title: 'Payment Completed',
                     text: 'Payment was successful but there was an issue updating the order status. Please contact support.',
-                    confirmButtonColor: '#ffc107'
+                    confirmButtonColor: '#ffc107',
+                    customClass: {
+                        popup: 'swal2-custom-bg'
+                    },
                 });
             }
         }).fail(function(xhr) {
@@ -831,18 +892,29 @@
                 icon: 'warning',
                 title: 'Update Failed',
                 text: errorMessage + ' Please contact support with Order ID: ' + paymentResult.order_id,
-                confirmButtonColor: '#ffc107'
+                confirmButtonColor: '#ffc107',
+                customClass: {
+                    popup: 'swal2-custom-bg'
+                },
             });
         });
     }
 
     function handleCash(transactionObj) {
         Swal.fire({
-            title: 'Enter Code',
-            input: 'text',
-            inputPlaceholder: 'e.g. COD3',
+            title: 'Please call the cashier',
+            text: "for the code",
+            color: "#f6eded",
+            input: 'password',
+            imageUrl: "{{ asset('assets/sanaphoto/cashier.png') }}",
+            inputPlaceholder: '*****',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
             showCancelButton: true,
             confirmButtonText: 'Apply',
+            customClass: {
+                popup: 'swal2-custom-bg'
+            },
             inputValidator: (value) => {
                 if (!value) {
                     return 'Please enter a kupon code!';
@@ -896,14 +968,26 @@
         // Button click events
         $('#qtyControlPlus').on('click', function () {
             qty = updateQuantity(1);
-            total = pricePerUnit * qty;
+            if(qty > 1) {
+                total = pricePerUnit + (pricePerUnit/2 * (qty-1))
+            } else {
+                total = pricePerUnit * qty;
+            }
             updatePriceDisplay(total)
         });
 
         $('#qtyControlMinus').on('click', function () {
             qty = updateQuantity(-1);
-            total = pricePerUnit * qty;
+            if(qty > 1) {
+                total = pricePerUnit - (pricePerUnit/2 * (qty-1))
+            } else {
+                total = pricePerUnit * qty;
+            }
             updatePriceDisplay(total)
+        });
+
+        $('.btnBack').on('click', function () {
+            location.reload();
         });
 
         // Initial state (in case default is at limit)

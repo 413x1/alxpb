@@ -50,7 +50,7 @@ class OrderController extends Controller
             'product_id' => $validated['product_id'],
             'device_id' => session('active_device_id'),
             'qty' => $validated['qty'],
-            'total_price' => $product->price * $validated['qty'],
+            'total_price' => $product->price + (($product->price/2) * ($validated['qty'] - 1)),
             'gateway_response' => null,
             'is_voucher' => false,
             'voucher_id' => null,
