@@ -588,9 +588,9 @@
                     <p><strong>Metode Pembayaran:</strong> <span class="text-primary">${payments === 'qris' ? 'QRIS Payment' : 'Cash'}</span></p>
             `;
 
-        if (payments === 'cash') {
-            confirmationHtml += `<p><strong>Kode Voucher:</strong> <span class="text-warning">${transactionObj.voucherCode}</span></p>`;
-        }
+        // if (payments === 'cash') {
+        //     confirmationHtml += `<p><strong>Kode Voucher:</strong> <span class="text-warning">${transactionObj.voucherCode}</span></p>`;
+        // }
 
         confirmationHtml += `
                 </div>
