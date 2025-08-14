@@ -37,7 +37,7 @@ class DashboardVoucherController extends Controller
                 'unique:vouchers,code',
                 function ($attribute, $value, $fail) {
                     if (!preg_match('/^[A-Z0-9]{4}$|^[0-9]{12}$/', $value)) {
-                        $fail('The '.$attribute.' must be 4 character uppercase.');
+                        $fail('The '.$attribute.' must be 4 or 12 character uppercase.');
                     }
                 },
             ],
@@ -71,7 +71,7 @@ class DashboardVoucherController extends Controller
                 'unique:vouchers,code',
                 function ($attribute, $value, $fail) {
                     if (!preg_match('/^[A-Z0-9]{4}$|^[0-9]{12}$/', $value)) {
-                        $fail('The '.$attribute.' must be 4 character uppercase.');
+                        $fail('The '.$attribute.' must be 4-12 character uppercase.');
                     }
                 },
             ],

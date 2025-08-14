@@ -63,6 +63,10 @@ class DashboardDeviceController extends Controller
             'is_active' => 'boolean',
         ]);
 
+        if(!$request->has('is_active')) {
+            $validated['is_active'] = 0;
+        }
+
         $device->update($validated);
 
         return redirect()->route('dashboard.devices.index')
