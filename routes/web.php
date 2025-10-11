@@ -39,6 +39,7 @@ Route::group(['middleware' => ['check.device']], function () {
 
     Route::get('/', [HomepageController::class, 'index'])->name('home');
     Route::resource('order', OrderController::class)->only(['index', 'store']);
+    Route::post('check-voucher-code', [OrderController::class, 'checkVoucherCode'])->name('check.voucher.code');
     Route::put('update-order-status', [OrderController::class, 'updateOrderStatus'])->name('order.update-status');
 });
 

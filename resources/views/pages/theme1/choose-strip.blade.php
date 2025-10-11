@@ -254,6 +254,13 @@
             color: white; /* Optional: Ensure text is readable */
         }
 
+        .fixed-btn {
+            position: fixed;
+            bottom: 20px;   /* distance from bottom */
+            right: 20px;    /* distance from right */
+            z-index: 1030;  /* keep above other elements */
+        }
+
     </style>
 
     <!-- SweetAlert2 CSS -->
@@ -285,6 +292,10 @@
                 </div>
             </div>
         </div>
+
+        <button class="btn btn-primary position-fixed top-0 end-0 m-4 shadow-lg" id="rePrintButton">
+            help
+        </button>
 
         <div class="container-fluid p-5" id="chooseStripSection">
 
@@ -333,7 +344,7 @@
 
                 <!-- Right-aligned input and Next button -->
                 <div class="col-4">
-                    <input class="form-control form-control-lg font-lague-spartan customer-name" name="name" id="customerName" type="text" placeholder="John Doe" required>
+                    <input class="form-control form-control-lg font-lague-spartan customer-name" name="name" id="customerName" type="hidden" value="-" placeholder="John Doe" required>
                     <input type="hidden" name="qty" id="qtyInput" value="1">
                 </div>
 
@@ -401,7 +412,7 @@
             type: 'GET',
             data: {
                 id: intOrderId,
-                qty: qty - 1,
+                qty: qty > 1 ? qty: 0,
                 api_url: apiUrl,
                 api_key: apiKey,
             },
@@ -446,11 +457,13 @@
     }
 
     function printCopies(count) {
+        let api_pass = "{{$device->api_key}}";
         $.ajax({
             url: "{{ $device->api_url }}api/print",
             type: 'GET',
             data: {
-                count: count
+                count: count,
+                password: api_pass
             },
             success: function(response) {
                 console.log('Print request successful:', response);
@@ -476,11 +489,13 @@
         // Proceed if input is valid
         $('#indexSection').hide();
         $('#chooseStripSection').hide();
+        $('#rePrintButton').hide();
         $('#choosePaymentSection').show();
     }
 
     function goToChooseStripSection() {
         $('#indexSection').hide();
+        $('#rePrintButton').hide();
         $('#chooseStripSection').show();
         $('#choosePaymentSection').hide();
     }
@@ -943,6 +958,89 @@
         );
     }
 
+    function handleReprint() {
+        Swal.fire({
+            title: 'Please call the cashier',
+            text: "for the code",
+            color: "#f6eded",
+            input: 'password',
+            imageUrl: "{{ asset('assets/sanaphoto/cashier.png') }}",
+            inputPlaceholder: '*****',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showCancelButton: true,
+            confirmButtonText: 'Apply',
+            customClass: {
+                popup: 'swal2-custom-bg'
+            },
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Please enter a kupon code!';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let code = result.value;
+                const token = document.querySelector('input[name="_token"]').value;
+
+                // Perform POST request to Laravel route
+                fetch("{{ route('check.voucher.code') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": token
+                    },
+                    body: JSON.stringify({ code: code })
+                })
+                    .then(async (response) => {
+                        if (!response.ok) {
+                            // Not a 200 OK response — invalid code
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Invalid Code',
+                                text: 'Please ask the cashier for a valid code.',
+                                color: "#f6eded",
+                                confirmButtonText: 'Close',
+                                timer: 3000,              // auto-close after 10 seconds
+                                timerProgressBar: true,     // show progress bar
+                                customClass: {
+                                    popup: 'swal2-custom-bg'
+                                },
+                            }).then(() => {
+                                Swal.close();
+                            });
+                        } else {
+                            const data = await response.json();
+                            printCopies(1)
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Code Accepted',
+                                color: "#f6eded",
+                                text: 'Printing!',
+                                confirmButtonText: 'Continue',
+                                timer: 3000,              // auto-close after 10 seconds
+                                timerProgressBar: true,     // show progress bar
+                                customClass: {
+                                    popup: 'swal2-custom-bg'
+                                },
+                            }).then(() => {
+                                console.log('Response:', data);
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Network Error',
+                            text: 'Something went wrong while verifying the code.',
+                        });
+                    });
+            }
+        });
+    }
+
+
     $(document).ready(function() {
         let pricePerUnit = {{ $product->price }};
         let qty = parseInt($('#qtyInput').val());
@@ -982,6 +1080,11 @@
         $('.btnBack').on('click', function () {
             location.reload();
         });
+
+        $('#rePrintButton').on('click', function (e) {
+            e.preventDefault();
+            handleReprint()
+        })
 
         // Initial state (in case default is at limit)
         updateQuantity(0);

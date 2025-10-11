@@ -244,4 +244,13 @@ class OrderController extends Controller
             'message' => 'Order updated successfully',
         ]);
     }
+
+    public function checkVoucherCode(Request $request)
+    {
+        $code = $request->input('code');
+        if(Voucher::where(['code' => $code, 'is_willcard' => true, 'is_used' => false])->exists()) {
+            return response()->json(['success' => true], 200);
+        }
+        return response()->json(['success' => false], 500);
+    }
 }
